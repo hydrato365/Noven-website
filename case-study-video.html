@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study: Interactive Streaming Platform - Noven</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #050509;
+            --glass-bg: rgba(10, 10, 14, 0.5);
+            --border-color: rgba(255, 255, 255, 0.07);
+            --primary-glow: #06b6d4; /* cyan-500 */
+        }
+        body.lang-en-active { font-family: 'Inter', sans-serif; }
+        body.lang-my-active { font-family: 'Padauk', sans-serif; }
+        
+        body { 
+            background-color: var(--bg-color);
+            color: #d1d5db; /* text-gray-300 */
+        }
+        #bg-canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            z-index: -1; 
+        }
+        .glass-card { background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--border-color); border-radius: 1rem; }
+        .gradient-text { background-image: linear-gradient(90deg, #06b6d4, #8b5cf6, #06b6d4); background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: text-gradient 5s linear infinite; }
+        @keyframes text-gradient { to { background-position: 200% center; } }
+        
+        .fade-in-section { opacity: 0; transform: translateY(20px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; }
+        .fade-in-section.is-visible { opacity: 1; transform: translateY(0); }
+
+        .custom-cursor { display: none; }
+        @media (hover: hover) and (pointer: fine) {
+            .custom-cursor { display: block; position: fixed; width: 24px; height: 24px; border: 2px solid var(--primary-glow); border-radius: 50%; left: 0; top: 0; pointer-events: none; transform: translate(-50%, -50%); transition: width 0.2s, height 0.2s, background-color 0.2s; z-index: 9999; }
+            .custom-cursor.link-hover { width: 48px; height: 48px; background-color: rgba(6, 182, 212, 0.2); }
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <div class="custom-cursor"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="main-header">
+        <nav class="container mx-auto px-6 py-5 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-extrabold tracking-tighter gradient-text">Noven</a>
+            <div class="flex items-center gap-4">
+                 <button class="lang-switcher bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-2 px-4 rounded-lg transition duration-300 text-sm">
+                    <span class="lang-en">မြန်မာ</span>
+                    <span class="lang-my hidden">English</span>
+                </button>
+                <a href="index.html#portfolio" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold py-2 px-4 rounded-lg transition duration-300 text-sm flex items-center">
+                    <i data-feather="arrow-left" class="w-4 h-4 mr-2"></i>
+                    <span class="lang-en">Back to Portfolio</span>
+                    <span class="lang-my hidden">Portfolio သို့ ပြန်သွားရန်</span>
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 pt-32 pb-16 relative z-10">
+        <!-- Project Header -->
+        <section class="text-center mb-16 fade-in-section">
+            <div class="lang-en">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-white tracking-tighter mb-4">Interactive Streaming Platform</h1>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400">A conceptual project showcasing how to transform a standard movie browser into an immersive, memorable user experience.</p>
+            </div>
+             <div class="lang-my hidden">
+                <h1 class="text-4xl md:text-6xl font-bold text-white tracking-tighter mb-4">Interactive Streaming Platform</h1>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400">ရိုးရှင်းသော movie browser တစ်ခုကို အသုံးပြုသူများအတွက် စွဲမက်ဖွယ်ကောင်းပြီး အမှတ်တရဖြစ်စေမည့် အတွေ့အကြုံအဖြစ်သို့ ပြောင်းလဲပုံဖော်ထားသည့် conceptual project တစ်ခု။</p>
+            </div>
+        </section>
+
+        <!-- Project Image -->
+        <section class="mb-16 fade-in-section" style="transition-delay: 100ms;">
+            <div class="glass-card p-2">
+                <img src="stream.png" alt="Video Streaming Platform Screenshot" class="rounded-lg w-full">
+            </div>
+        </section>
+
+        <!-- Project Details -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2">
+                <!-- The Challenge -->
+                <section class="glass-card p-8 mb-8 fade-in-section" style="transition-delay: 200ms;">
+                    <div class="lang-en">
+                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>The Challenge</h2>
+                        <p class="text-gray-400 leading-relaxed">The goal was to move beyond the traditional grid-based layout for a streaming service. The key challenge was to create a user interface that was not just functional, but also captivating and adventurous. The platform needed to make the act of browsing for a movie feel like an exploration, encouraging user engagement and creating a strong brand identity.</p>
+                    </div>
+                    <div class="lang-my hidden">
+                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>စိန်ခေါ်မှု</h2>
+                        <p class="text-gray-400 leading-relaxed">Streaming service တစ်ခုအတွက် သမားရိုးကျ grid ပုံစံ layout မှ ခွဲထွက်ရန်မှာ အဓိကရည်ရွယ်ချက်ဖြစ်ပါသည်။ အဓိကစိန်ခေါ်မှုမှာ အသုံးဝင်ရုံသာမက စိတ်ဝင်စားဖွယ်ကောင်းပြီး စွန့်စားခန်းတစ်ခုကဲ့သို့ဖြစ်စေမည့် user interface တစ်ခုကို ဖန်တီးရန်ဖြစ်သည်။ Platform သည် ရုပ်ရှင်ကြည့်ရှုခြင်းကို စူးစမ်းရှာဖွေခြင်းကဲ့သို့ ခံစားရစေပြီး၊ အသုံးပြုသူ၏စိတ်ဝင်စားမှုကို မြှင့်တင်ပေးကာ ခိုင်မာသော brand identity တစ်ခုကို ဖန်တီးပေးရန် လိုအပ်ပါသည်။</p>
+                    </div>
+                </section>
+
+                <!-- The Solution -->
+                <section class="glass-card p-8 fade-in-section" style="transition-delay: 300ms;">
+                    <div class="lang-en">
+                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>The Solution</h2>
+                        <p class="text-gray-400 leading-relaxed">I engineered an advanced, client-side web application using **Vanilla JavaScript** and **Three.js**. The centerpiece is a 3D "Galaxy Navigator," where each movie category is represented as a unique planet. Users can fly between these planets to explore different genres, turning browsing into an interactive journey.</p>
+                    <p class="text-gray-400 leading-relaxed mt-4">To further enhance interactivity, I integrated the **Google Gemini API** with streaming support. This allows users to ask an AI assistant questions about the selected movie and receive instant, conversational answers, creating a deeply personalized experience without needing a traditional backend.</p>
+                    </div>
+                     <div class="lang-my hidden">
+                        <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>ဖြေရှင်းမှု</h2>
+                        <p class="text-gray-400 leading-relaxed">**Vanilla JavaScript** နှင့် **Three.js** ကို အသုံးပြု၍ အဆင့်မြင့် client-side web application တစ်ခုကို တီထွင်ခဲ့သည်။ အဓိက feature မှာ ရုပ်ရှင်အမျိုးအစားတစ်ခုစီကို သီးခြားဂြိုဟ်တစ်ခုအဖြစ် ကိုယ်စားပြုသည့် 3D "Galaxy Navigator" ဖြစ်သည်။ အသုံးပြုသူများသည် ဤဂြိုဟ်များကြားတွင် ကူးလူးပျံသန်းနိုင်ပြီး အမျိုးအစားအလိုက် စူးစမ်းရှာဖွေနိုင်ကာ ကြည့်ရှုခြင်းကို interactive ခရီးစဉ်တစ်ခုအဖြစ် ပြောင်းလဲပေးပါသည်။</p>
+                        <p class="text-gray-400 leading-relaxed mt-4">ထို့အပြင်၊ **Google Gemini API** ကို streaming support ဖြင့် ချိတ်ဆက်ထားပါသည်။ ၎င်းသည် အသုံးပြုသူများအား ရွေးချယ်ထားသောရုပ်ရှင်နှင့်ပတ်သက်၍ AI assistant ကို မေးခွန်းများမေးမြန်းနိုင်ပြီး၊ backend မလိုအပ်ဘဲ အလွန် personal ကျသော အတွေ့အကြုံကို ဖန်တီးပေးပါသည်။</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Sidebar with Key Info -->
+            <aside class="fade-in-section" style="transition-delay: 400ms;">
+                <div class="glass-card p-8 sticky top-28">
+                    <h3 class="text-xl font-bold text-white mb-6 lang-en">Project Info</h3>
+                    <h3 class="text-xl font-bold text-white mb-6 lang-my hidden">Project အချက်အလက်</h3>
+                    <div class="space-y-5">
+                        <div>
+                            <h4 class="font-semibold text-gray-200 lang-en">My Role</h4>
+                            <h4 class="font-semibold text-gray-200 lang-my hidden">ကျွန်ုပ်၏ အခန်းကဏ္ဍ</h4>
+                            <p class="text-cyan-400">Front-End Developer, 3D/UI Designer</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-200 lang-en">Technologies Used</h4>
+                            <h4 class="font-semibold text-gray-200 lang-my hidden">အသုံးပြုခဲ့သော နည်းပညာများ</h4>
+                            <div class="flex flex-wrap gap-2 mt-2">
+                                <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">HTML5</span>
+                                <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Tailwind CSS</span>
+                                <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">JavaScript (ES6+)</span>
+                                <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Three.js</span>
+                                <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Gemini API</span>
+                            </div>
+                        </div>
+                         <div>
+                            <h4 class="font-semibold text-gray-200 lang-en">Timeline</h4>
+                            <h4 class="font-semibold text-gray-200 lang-my hidden">အချိန်ကာလ</h4>
+                            <p class="text-cyan-400">3 Weeks (Concept & Development)</p>
+                        </div>
+                        <div>
+                            <a href="video.html" target="_blank" class="inline-block w-full text-center bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                                <span class="lang-en">View Live Demo →</span>
+                                <span class="lang-my hidden">Live Demo ကြည့်ရန် →</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </main>
+    
+    <footer class="py-8 mt-16 border-t border-white/10 relative z-10">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>© <span id="year"></span> Noven. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // --- 3D BACKGROUND SCRIPT ---
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            let mouseX = 0, mouseY = 0;
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.z = 50;
+            const particlesCount = 2000;
+            const positions = new Float32Array(particlesCount * 3);
+            for(let i = 0; i < particlesCount * 3; i++) {
+                positions[i] = (Math.random() - 0.5) * 200;
+            }
+            const particlesGeometry = new THREE.BufferGeometry();
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({ color: 0x06b6d4, size: 0.15, transparent: true, opacity: 0.7 });
+            const particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+            if (!isTouchDevice) {
+                document.addEventListener('mousemove', (event) => {
+                    mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                    mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                });
+            }
+            const clock = new THREE.Clock();
+            function animate() {
+                requestAnimationFrame(animate);
+                const elapsedTime = clock.getElapsedTime();
+                particles.rotation.y = elapsedTime * 0.05;
+                if (!isTouchDevice) {
+                    camera.position.x += (mouseX * 5 - camera.position.x) * 0.05;
+                    camera.position.y += (mouseY * 5 - camera.position.y) * 0.05;
+                }
+                camera.lookAt(scene.position);
+                renderer.render(scene, camera);
+            }
+            animate();
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            // --- HEADER SCROLL EFFECT ---
+            const header = document.getElementById('main-header');
+            window.addEventListener('scroll', () => {
+                header.classList.toggle('glass-card', window.scrollY > 50);
+                header.classList.toggle('m-4', window.scrollY > 50);
+            });
+
+            // --- CUSTOM CURSOR ---
+            if (!isTouchDevice) {
+                const cursor = document.querySelector('.custom-cursor');
+                const links = document.querySelectorAll('a, button');
+                window.addEventListener('mousemove', e => {
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                });
+                links.forEach(link => {
+                    link.addEventListener('mouseenter', () => cursor.classList.add('link-hover'));
+                    link.addEventListener('mouseleave', () => cursor.classList.remove('link-hover'));
+                });
+            }
+
+            // --- FADE-IN ANIMATION SCRIPT ---
+            const sections = document.querySelectorAll('.fade-in-section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+            sections.forEach(section => observer.observe(section));
+
+            // --- LANGUAGE SWITCHER ---
+            const switcherButtons = document.querySelectorAll('.lang-switcher');
+            const body = document.body;
+            const langKey = 'noven_portfolio_lang_v4'; // Use the same key as index.html
+            function setLanguage(lang) {
+                document.querySelectorAll('.lang-en').forEach(el => el.classList.toggle('hidden', lang === 'my'));
+                document.querySelectorAll('.lang-my').forEach(el => el.classList.toggle('hidden', lang !== 'my'));
+                body.classList.toggle('lang-en-active', lang !== 'my');
+                body.classList.toggle('lang-my-active', lang === 'my');
+                localStorage.setItem(langKey, lang);
+            }
+            
+            // Set initial language based on what was saved from index.html
+            setLanguage(localStorage.getItem(langKey) || 'en');
+
+            switcherButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const currentLang = localStorage.getItem(langKey) || 'en';
+                    const newLang = currentLang === 'en' ? 'my' : 'en';
+                    setLanguage(newLang);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

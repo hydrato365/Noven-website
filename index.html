@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wemarz - Crafting Digital Excellence</title>
+    
+    <!-- Fix for White Flash on Refresh -->
+    <style>
+        body {
+            background-color: #050509; /* Set background color immediately */
+        }
+    </style>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body class="text-gray-300 antialiased overflow-x-hidden">
+
+    <!-- Pre-style with <noscript> for non-JS browsers and initial load -->
+    <noscript>
+        <style>
+            body { background-color: #050509 !important; }
+        </style>
+    </noscript>
+    
+    <div class="custom-cursor"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <header class="fixed top-0 left-0 right-0 z-50 transition-all duration-300" id="main-header">
+        <nav class="container mx-auto px-6 py-5 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2 transition-transform duration-300 hover:scale-105">
+                <img src="wemarz-header-logo.png" alt="Wemarz Logo" class="h-8 md:h-10" onerror="this.onerror=null;this.src='https://placehold.co/40x40/050509/FFFFFF?text=W';">
+                <span id="brand-logo" class="text-2xl md:text-3xl font-extrabold tracking-tighter gradient-text emboss-text">Wemarz</span>
+            </a>
+            <div class="hidden md:flex space-x-8 items-center">
+                <a href="#about" class="nav-link text-gray-300 transition duration-300 lang-en">About Us</a>
+                <a href="#services" class="nav-link text-gray-300 transition duration-300 lang-en">Services</a>
+                <a href="#market" class="nav-link text-gray-300 transition duration-300 lang-en">Market</a>
+                <a href="#tech-approach" class="nav-link text-gray-300 transition duration-300 lang-en">Approach</a>
+                <a href="#process" class="nav-link text-gray-300 transition duration-300 lang-en">Process</a>
+                <a href="#portfolio" class="nav-link text-gray-300 transition duration-300 lang-en">Portfolio</a>
+                <a href="#faq" class="nav-link faq-trigger text-gray-300 transition duration-300 lang-en cursor-pointer">FAQ</a>
+                
+                <a href="#about" class="nav-link text-gray-300 transition duration-300 lang-my hidden">ကျွန်ုပ်တို့အကြောင်း</a>
+                <a href="#services" class="nav-link text-gray-300 transition duration-300 lang-my hidden">ဝန်ဆောင်မှု</a>
+                <a href="#market" class="nav-link text-gray-300 transition duration-300 lang-my hidden">ဈေးကွက်</a>
+                <a href="#tech-approach" class="nav-link text-gray-300 transition duration-300 lang-my hidden">ချဉ်းကပ်မှု</a>
+                <a href="#process" class="nav-link text-gray-300 transition duration-300 lang-my hidden">လုပ်ငန်းစဉ်</a>
+                <a href="#portfolio" class="nav-link text-gray-300 transition duration-300 lang-my hidden">လုပ်ငန်းနမူနာ</a>
+                <a href="#faq" class="nav-link faq-trigger text-gray-300 transition duration-300 lang-my hidden cursor-pointer">FAQ</a>
+                
+                <button class="lang-switcher bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-2 px-4 rounded-lg transition duration-300 text-sm">
+                    <span class="lang-en">မြန်မာ</span>
+                    <span class="lang-my hidden">English</span>
+                </button>
+            </div>
+            <div class="flex items-center md:hidden">
+                <button class="lang-switcher text-gray-300 p-2 text-2xl">
+                    <span class="lang-en">🇲🇲</span>
+                    <span class="lang-my hidden">🇺🇸</span>
+                </button>
+                <button id="mobile-menu-button" class="hamburger ml-2">
+                    <div class="hamburger-line line-1"></div>
+                    <div class="hamburger-line line-2"></div>
+                    <div class="hamburger-line line-3"></div>
+                </button>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden glass-card mx-4 my-2 rounded-lg">
+            <div class="px-6 py-4 flex flex-col space-y-4">
+                <a href="#about" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">About Us</a>
+                <a href="#services" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">Services</a>
+                <a href="#market" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">Market</a>
+                <a href="#tech-approach" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">Approach</a>
+                <a href="#process" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">Process</a>
+                <a href="#portfolio" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-en">Portfolio</a>
+                <a href="#faq" class="faq-trigger text-gray-300 hover:text-cyan-400 lang-en cursor-pointer">FAQ</a>
+
+                <a href="#about" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">ကျွန်ုပ်တို့အကြောင်း</a>
+                <a href="#services" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">ဝန်ဆောင်မှု</a>
+                <a href="#market" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">ဈေးကွက်</a>
+                <a href="#tech-approach" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">ချဉ်းကပ်မှု</a>
+                <a href="#process" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">လုပ်ငန်းစဉ်</a>
+                <a href="#portfolio" class="nav-link-mobile text-gray-300 hover:text-cyan-400 lang-my hidden">လုပ်ငန်းနမူနာ</a>
+                <a href="#faq" class="faq-trigger text-gray-300 hover:text-cyan-400 lang-my hidden cursor-pointer">FAQ</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="min-h-screen flex items-center justify-center text-center px-4">
+            <div class="relative z-10">
+                <h1 class="text-5xl md:text-7xl font-extrabold text-white tracking-tighter mb-4 emboss-text lang-en">Crafting Digital Excellence.</h1>
+                <h1 class="text-5xl md:text-6xl font-bold text-white tracking-tighter mb-4 emboss-text lang-my hidden">ဒစ်ဂျစ်တယ်ကမ္ဘာအတွက်<br>အကောင်းဆုံး ဖန်တီးမှုများ</h1>
+                <p class="max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mb-8 lang-en">Transforming ideas into beautiful, effective, and memorable web experiences.</p>
+                <p class="max-w-2xl mx-auto text-lg md:text-xl text-gray-400 mb-8 lang-my hidden">စိတ်ကူးများကို လှပ၊ ထိရောက်ပြီး အမှတ်တရဖြစ်စေမည့် Web Experiences များအဖြစ် အသွင်ပြောင်းပေးသည်။</p>
+                <a href="#portfolio" class="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                    <span class="lang-en">View Our Work</span>
+                    <span class="lang-my hidden">လုပ်ငန်းများ ကြည့်ရန်</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="about" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="glass-card p-8 md:p-12">
+                    <div class="grid md:grid-cols-5 gap-8 md:gap-16 items-center">
+                        <div class="md:col-span-2 flex justify-center">
+                            <div class="logo-animation-container">
+                                <div class="ring"></div>
+                                <div class="ring"></div>
+                                <div class="ring"></div>
+                                <img src="wemarz-logo.png" alt="Wemarz Company Logo" class="logo-image" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/200x200/050509/FFFFFF?text=Wemarz';">
+                            </div>
+                        </div>
+                        <div class="md:col-span-3">
+                            <div class="lang-en"> 
+                                <h2 class="text-3xl font-bold text-white mb-4 emboss-text">Welcome to Wemarz.</h2>
+                                <h3 class="text-2xl font-semibold text-cyan-400 mb-4">A digital studio driven by a passion for turning creative ideas into immersive realities.</h3> 
+                                <p class="text-gray-300 text-lg leading-relaxed">At Wemarz, we believe coding is more than just a job; it's a craft. We specialize in building unique, high-performance websites with a focus on interactive elements and 3D experiences. Our commitment is to provide you not just a website, but a powerful tool that reflects your brand's value and helps you connect with your audience in a meaningful way. Led by our founder, Noven, we are ready to build something exceptional together.</p> 
+                            </div>
+                            <div class="lang-my hidden"> 
+                                <h2 class="text-3xl font-bold text-white mb-4 emboss-text">Wemarz မှ ကြိုဆိုပါတယ်။</h2>
+                                <h3 class="text-2xl font-semibold text-cyan-400 mb-4">ဖန်တီးမှုစိတ်ကူးတွေကို အသက်ဝင်တဲ့ ဒစ်ဂျစ်တယ်အတွေ့အကြုံတွေအဖြစ် ပြောင်းလဲဖို့ စိတ်အားထက်သန်မှုနဲ့ တည်ထောင်ထားတဲ့ digital studio တစ်ခုပါ။</h3> 
+                                <p class="text-gray-300 text-lg leading-relaxed">Wemarz မှာတော့ coding ဆိုတာ အလုပ်တစ်ခုထက်ပိုပြီး၊ အနုပညာတစ်ခုလို ဖန်တီးရတဲ့ အရာတစ်ခုလို့ ကျွန်ုပ်တို့ ယုံကြည်ပါတယ်။ ကျွန်ုပ်တို့ဟာ interactive ဖြစ်တဲ့ အပိုင်းတွေနဲ့ 3D experiences တွေကို အသားပေးပြီး၊ တမူထူးခြားတဲ့၊ performance ကောင်းမွန်တဲ့ website တွေကို တည်ဆောက်ပေးပါတယ်။ ကျွန်ုပ်တို့ရဲ့ ကတိကဝတ်ကတော့ သင့်ကို website တစ်ခုတည်း ပေးတာမဟုတ်ဘဲ၊ သင့် brand ရဲ့ တန်ဖိုးကို ထင်ဟပ်စေပြီး သင့်ရဲ့ ပရိသတ်နဲ့ အဓိပ္ပာယ်ရှိရှိ ချိတ်ဆက်ပေးနိုင်မယ့် အစွမ်းထက် tool တစ်ခုကို ဖန်တီးပေးဖို့ပါပဲ။ ကျွန်ုပ်တို့ရဲ့ တည်ထောင်သူ Noven ရဲ့ ဦးဆောင်မှုနဲ့အတူ ထူးခြားကောင်းမွန်တဲ့ အရာတစ်ခုကို အတူတကွ တည်ဆောက်လိုက်ကြရအောင်။</p> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="services" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">What We Offer</h2><p class="mt-4 text-lg text-gray-400">Tailored solutions to bring your digital vision to life.</p></div>
+                    <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">ကျွန်ုပ်တို့၏ ဝန်ဆောင်မှုများ</h2><p class="mt-4 text-lg text-gray-400">သင်၏ ဒစ်ဂျစ်တယ်စိတ်ကူးကို အသက်ဝင်စေရန် အံဝင်ခွင်ကျဖြေရှင်းနည်းများ။</p></div>
+                </div>
+                <div class="mobile-slider md:grid md:grid-cols-2 lg:grid-cols-4 md:gap-8">
+                    <div class="services-slider-item glass-card p-8 text-center hover:border-cyan-400 transition-colors duration-300">
+                        <i data-feather="layout" class="w-12 h-12 text-cyan-400 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-en">Custom Websites</h3>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">သီးသန့် Website များ</h3>
+                        <p class="text-gray-400 lang-en">Unique, responsive websites built from scratch to fit your brand.</p>
+                        <p class="text-gray-400 lang-my hidden">သင်၏ brand နှင့် အံဝင်ခွင်ကျဖြစ်မည့် တမူထူးခြားသော website များ။</p>
+                    </div>
+                    <div class="services-slider-item glass-card p-8 text-center hover:border-cyan-400 transition-colors duration-300">
+                        <i data-feather="shopping-cart" class="w-12 h-12 text-cyan-400 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-en">E-commerce</h3>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">E-commerce</h3>
+                        <p class="text-gray-400 lang-en">Full-featured online stores to sell your products effectively.</p>
+                        <p class="text-gray-400 lang-my hidden">သင်၏ကုန်ပစ္စည်းများကို ထိရောက်စွာရောင်းချရန် online store များ။</p>
+                    </div>
+                    <div class="services-slider-item glass-card p-8 text-center hover:border-cyan-400 transition-colors duration-300">
+                        <i data-feather="box" class="w-12 h-12 text-cyan-400 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-en">3D Experiences</h3>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">3D Experiences</h3>
+                        <p class="text-gray-400 lang-en">Engaging and interactive 3D web experiences with Three.js.</p>
+                        <p class="text-gray-400 lang-my hidden">Three.js ဖြင့် ဆွဲဆောင်မှုရှိသော 3D web experiences များ။</p>
+                    </div>
+                    <div class="services-slider-item glass-card p-8 text-center hover:border-cyan-400 transition-colors duration-300">
+                        <i data-feather="figma" class="w-12 h-12 text-cyan-400 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-en">UI/UX Design</h3>
+                        <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">UI/UX Design</h3>
+                        <p class="text-gray-400 lang-en">Intuitive and beautiful user interfaces that users love.</p>
+                        <p class="text-gray-400 lang-my hidden">အသုံးပြုသူများနှစ်သက်မည့် လှပပြီးအသုံးပြုရလွယ်ကူသော UI များ။</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-approach" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">Our Technical Core</h2><p class="mt-4 text-lg text-gray-400">Building websites that are not just beautiful, but are engineered for excellence.</p></div>
+                    <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">ကျွန်ုပ်တို့၏ နည်းပညာပိုင်းဆိုင်ရာ အဓိကအချက်များ</h2><p class="mt-4 text-lg text-gray-400">လှပရုံသာမက၊ ထူးချွန်မှုအတွက် အင်ဂျင်နီယာပိုင်းအရ တည်ဆောက်ထားသော website များ။</p></div>
+                </div>
+                <div class="glass-card p-8 md:p-12">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                        <div class="space-y-8">
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-bold text-white lang-en">Performance</h4>
+                                    <h4 class="font-bold text-white lang-my hidden">မြန်နှုန်း</h4>
+                                    <span id="performance-score" class="font-bold text-cyan-400 text-lg">0%</span>
+                                </div>
+                                <div class="performance-bar h-3">
+                                    <div class="performance-bar-inner" data-width="98%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-bold text-white lang-en">Accessibility</h4>
+                                    <h4 class="font-bold text-white lang-my hidden">အသုံးပြုရလွယ်ကူမှု</h4>
+                                    <span id="accessibility-score" class="font-bold text-cyan-400 text-lg">0%</span>
+                                </div>
+                                <div class="performance-bar h-3">
+                                    <div class="performance-bar-inner" data-width="95%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <h4 class="font-bold text-white lang-en">SEO</h4>
+                                    <h4 class="font-bold text-white lang-my hidden">SEO</h4>
+                                    <span id="seo-score" class="font-bold text-cyan-400 text-lg">0%</span>
+                                </div>
+                                <div class="performance-bar h-3">
+                                    <div class="performance-bar-inner" data-width="92%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-gray-300">
+                            <p class="lang-en">We focus on metrics that matter. Every project is meticulously optimized to achieve top scores in performance, ensuring a fast and smooth experience. High accessibility standards mean your site is usable by everyone, and strong SEO foundations help you get discovered.</p>
+                            <p class="lang-my hidden">ကျွန်ုပ်တို့သည် အရေးပါသော metric များကိုသာ အဓိကထားပါသည်။ project တိုင်းကို မြန်ဆန်ချောမွေ့သော အတွေ့အကြုံအတွက် အကောင်းဆုံး performance ရမှတ်များရရှိရန် ဂရုတစိုက်ပြုလုပ်ထားပါသည်။ မြင့်မားသော accessibility စံနှုန်းများက သင်၏ site ကို လူတိုင်းအသုံးပြုနိုင်စေပြီး၊ ခိုင်မာသော SEO အခြေခံများက သင့်ကို အလွယ်တကူ ရှာဖွေတွေ့ရှိနိုင်အောင် ကူညီပေးပါသည်။</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="process" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16">
+                    <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">Our Process</h2><p class="mt-4 text-lg text-gray-400">A clear and collaborative process for guaranteed results.</p></div>
+                    <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">ကျွန်ုပ်တို့၏ လုပ်ငန်းစဉ်</h2><p class="mt-4 text-lg text-gray-400">ရှင်းလင်းပြီး ပူးပေါင်းလုပ်ဆောင်သော လုပ်ငန်းစဉ်။</p></div>
+                </div>
+                <div class="relative">
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-white/10" style="transform: translateY(-50%);"></div>
+                    <div class="mobile-slider md:grid md:grid-cols-4 md:gap-12 md:relative">
+                        <div class="process-slider-item text-center">
+                            <div class="relative bg-black z-10 inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full glass-card border-2 border-cyan-500"><i data-feather="search" class="w-8 h-8 text-cyan-500"></i></div>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-en">1. Discovery</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">၁။ ရှာဖွေခြင်း</h3>
+                            <p class="text-gray-400 lang-en">We define the project goals and user needs together.</p>
+                            <p class="text-gray-400 lang-my hidden">Project ၏ ရည်မှန်းချက်နှင့် လိုအပ်ချက်များကို အတူတကွ သတ်မှတ်သည်။</p>
+                        </div>
+                         <div class="process-slider-item text-center">
+                            <div class="relative bg-black z-10 inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full glass-card border-2 border-cyan-500"><i data-feather="edit-3" class="w-8 h-8 text-cyan-500"></i></div>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-en">2. Design</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">၂။ ဒီဇိုင်း</h3>
+                            <p class="text-gray-400 lang-en">We create a visual prototype and overall user experience.</p>
+                            <p class="text-gray-400 lang-my hidden">မြင်သာသော နမူနာပုံစံနှင့် user experience ကို ဖန်တီးသည်။</p>
+                        </div>
+                         <div class="process-slider-item text-center">
+                            <div class="relative bg-black z-10 inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full glass-card border-2 border-cyan-500"><i data-feather="code" class="w-8 h-8 text-cyan-500"></i></div>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-en">3. Develop</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">၃။ တည်ဆောက်ခြင်း</h3>
+                            <p class="text-gray-400 lang-en">Bringing the design to life with clean, efficient code.</p>
+                            <p class="text-gray-400 lang-my hidden">ဒီဇိုင်းကို သန့်ရှင်းသော code ဖြင့် အသက်သွင်းသည်။</p>
+                        </div>
+                         <div class="process-slider-item text-center">
+                            <div class="relative bg-black z-10 inline-flex items-center justify-center w-20 h-20 mb-4 rounded-full glass-card border-2 border-cyan-500"><i data-feather="send" class="w-8 h-8 text-cyan-500"></i></div>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-en">4. Launch</h3>
+                            <h3 class="text-xl font-bold text-white mb-2 lang-my hidden">၄။ လွှင့်တင်ခြင်း</h3>
+                            <p class="text-gray-400 lang-en">Deploying the project and ensuring everything runs smoothly.</p>
+                            <p class="text-gray-400 lang-my hidden">Project ကို deploy လုပ်ပြီး အရာအားလုံး အဆင်ပြေအောင် စစ်ဆေးသည်။</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                 <div class="text-center mb-12">
+                        <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">Our Portfolio</h2></div>
+                        <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">ကျွန်ုပ်တို့၏ လုပ်ငန်းနမူနာများ</h2></div>
+                 </div>
+
+                <!-- Filter Buttons -->
+                <div class="flex justify-center flex-wrap gap-3 mb-12" id="filter-container">
+                    <button class="filter-btn active px-5 py-2 rounded-full" data-filter="all">
+                        <span class="lang-en">All</span>
+                        <span class="lang-my hidden">အားလုံး</span>
+                    </button>
+                    <button class="filter-btn px-5 py-2 rounded-full" data-filter="featured">
+                        <span class="lang-en">Featured</span>
+                        <span class="lang-my hidden">အထူးပြု</span>
+                    </button>
+                    <button class="filter-btn px-5 py-2 rounded-full" data-filter="web-design">
+                        <span class="lang-en">Web Design</span>
+                        <span class="lang-my hidden">Web Design</span>
+                    </button>
+                    <button class="filter-btn px-5 py-2 rounded-full" data-filter="e-commerce">
+                        <span class="lang-en">E-commerce</span>
+                        <span class="lang-my hidden">E-commerce</span>
+                    </button>
+                </div>
+
+                <div id="portfolio-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="project-card glass-card overflow-hidden group relative md:col-span-2 lg:col-span-3" data-category="featured">
+                        <img src="stream.png" alt="Featured Project" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/050509/FFFFFF?text=Streaming+Platform';">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8">
+                            <div class="lang-en">
+                                <p class="text-sm text-cyan-400 font-bold uppercase tracking-wider">Featured Project</p>
+                                <h3 class="text-2xl md:text-3xl font-bold text-white mt-1 mb-3">Video Streaming Platform</h3>
+                                <button data-modal-trigger="case-study-main" class="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">View Case Study →</button>
+                            </div>
+                            <div class="lang-my hidden">
+                                <p class="text-sm text-cyan-400 font-bold uppercase tracking-wider">အထူးပြု Project</p>
+                                <h3 class="text-2xl md:text-3xl font-bold text-white mt-1 mb-3">Video Streaming Platform</h3>
+                                <button data-modal-trigger="case-study-main" class="inline-block bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition duration-300">Case Study ကြည့်ရန် →</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="project-card glass-card overflow-hidden group relative" data-category="web-design">
+                        <img src="project-coffee-thumb.jpg" alt="Coffee Shop Project" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/050509/FFFFFF?text=Coffee+Shop';">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6">
+                            <div class="lang-en"><h3 class="text-xl font-bold text-white mb-2">Modern Coffee Shop</h3><button data-modal-trigger="case-study-coffee" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">View Case Study →</button></div>
+                            <div class="lang-my hidden"><h3 class="text-xl font-bold text-white mb-2">ခေတ်မီကော်ဖီဆိုင်</h3><button data-modal-trigger="case-study-coffee" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">Case Study ကြည့်ရန် →</button></div>
+                        </div>
+                    </div>
+                    <div class="project-card glass-card overflow-hidden group relative" data-category="e-commerce">
+                        <img src="project-ecommerce-thumb.jpg" alt="E-commerce Project" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/050509/FFFFFF?text=E-commerce';">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6">
+                            <div class="lang-en"><h3 class="text-xl font-bold text-white mb-2">Artisan E-commerce</h3><button data-modal-trigger="case-study-ecommerce" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">View Case Study →</button></div>
+                            <div class="lang-my hidden"><h3 class="text-xl font-bold text-white mb-2">လက်မှုပညာ Store</h3><button data-modal-trigger="case-study-ecommerce" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">Case Study ကြည့်ရန် →</button></div>
+                        </div>
+                    </div>
+                    <div class="project-card glass-card overflow-hidden group relative" data-category="web-design">
+                        <img src="project-blog-thumb.jpg" alt="Travel Blog Project" loading="lazy" decoding="async" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" onerror="this.onerror=null;this.src='https://placehold.co/600x400/050509/FFFFFF?text=Travel+Blog';">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 p-6">
+                            <div class="lang-en"><h3 class="text-xl font-bold text-white mb-2">Travel Blog</h3><button data-modal-trigger="case-study-blog" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">View Case Study →</button></div>
+                            <div class="lang-my hidden"><h3 class="text-xl font-bold text-white mb-2">ခရီးသွား Blog</h3><button data-modal-trigger="case-study-blog" class="text-cyan-400 hover:underline font-semibold bg-transparent border-none p-0">Case Study ကြည့်ရန် →</button></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="revamp" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">Website Revamp Showcase</h2><p class="mt-4 text-lg text-gray-400">Transforming the old into something new and effective.</p></div>
+                    <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">Website အသွင်ပြောင်းမှု နမူနာ</h2><p class="mt-4 text-lg text-gray-400">အဟောင်းမှ အသစ်သို့ ထိရောက်စွာ ပြောင်းလဲခြင်း။</p></div>
+                </div>
+
+                <div class="glass-card p-4 md:p-8">
+                    <div class="comparison-slider" id="comparison-container">
+                        <img src="revamp-before.jpg" alt="Before" class="before-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x800/eeeeee/777777?text=Old+Website\n(Before)';">
+                        <img src="revamp-after.jpg" alt="After" class="after-image" id="after-image" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x800/050509/ffffff?text=Modern+Redesign\n(After)';">
+                        <div class="slider-handle" id="slider-handle"></div>
+                    </div>
+                    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                        <div>
+                            <i data-feather="smartphone" class="w-10 h-10 text-cyan-400 mx-auto mb-2"></i>
+                            <h4 class="font-bold text-white lang-en">Mobile Responsive</h4>
+                            <h4 class="font-bold text-white lang-my hidden">Mobile Responsive</h4>
+                            <p class="text-sm text-gray-400 lang-en">Ensured a perfect view on all devices.</p>
+                            <p class="text-sm text-gray-400 lang-my hidden">Device အားလုံးတွင် ကောင်းမွန်စွာ ပြသနိုင်ခြင်း။</p>
+                        </div>
+                        <div>
+                            <i data-feather="eye" class="w-10 h-10 text-cyan-400 mx-auto mb-2"></i>
+                            <h4 class="font-bold text-white lang-en">Modern UI/UX</h4>
+                            <h4 class="font-bold text-white lang-my hidden">ခေတ်မီ UI/UX</h4>
+                            <p class="text-sm text-gray-400 lang-en">Improved user flow and visual appeal.</p>
+                            <p class="text-sm text-gray-400 lang-my hidden">အသုံးပြုရလွယ်ကူပြီး ဆွဲဆောင်မှုရှိသော ဒီဇိုင်း။</p>
+                        </div>
+                        <div>
+                            <i data-feather="zap" class="w-10 h-10 text-cyan-400 mx-auto mb-2"></i>
+                            <h4 class="font-bold text-white lang-en">Faster Loading</h4>
+                            <h4 class="font-bold text-white lang-my hidden">ပိုမိုမြန်ဆန်ခြင်း</h4>
+                            <p class="text-sm text-gray-400 lang-en">Optimized assets for quicker load times.</p>
+                            <p class="text-sm text-gray-400 lang-my hidden">မြန်ဆန်စွာ load ဖြစ်စေရန် assets များကို optimize လုပ်ခြင်း။</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="market" class="py-20 md:py-32 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <div class="lang-en"><h2 class="text-4xl font-bold text-white emboss-text">Market Overview</h2><p class="mt-4 text-lg text-gray-400">Real-time foreign exchange rates.</p></div>
+                    <div class="lang-my hidden"><h2 class="text-4xl font-bold text-white emboss-text">နိုင်ငံတကာငွေကြေးဈေးကွက်</h2><p class="mt-4 text-lg text-gray-400">အချိန်နှင့်တပြေးညီ နိုင်ငံခြားငွေလဲလှယ်နှုန်းများ။</p></div>
+                </div>
+                <div class="glass-card p-4 md:p-8 max-w-4xl mx-auto overflow-x-auto">
+                    <div class="min-w-[480px]">
+                        <div class="px-4 pt-2 pb-4 border-b border-white/10 grid grid-cols-3 gap-4 text-gray-400 font-bold">
+                            <div class="lang-en">TICKER</div>
+                            <div class="lang-my hidden">ငွေကြေး</div>
+                            <div class="text-right lang-en">PRICE</div>
+                            <div class="text-right lang-my hidden">ပေါက်ဈေး</div>
+                            <div class="text-right lang-en">CHANGE</div>
+                            <div class="text-right lang-my hidden">အပြောင်းအလဲ</div>
+                        </div>
+                        <div id="currency-ticker" class="currency-ticker-container">
+                            <!-- Currency data will be loaded here by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="py-16 border-t border-white/10">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="md:col-span-1">
+                    <h3 class="text-2xl font-extrabold tracking-tighter gradient-text emboss-text mb-4">Wemarz</h3>
+                    <p class="text-gray-400 text-sm lang-en">Crafting digital excellence, one project at a time.</p>
+                    <p class="text-gray-400 text-sm lang-my hidden">ဒစ်ဂျစ်တယ် excelence ကို တစ်ကြိမ်လျှင် project တစ်ခုနှုန်းဖြင့် ဖန်တီးနေသည်။</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4 lang-en">Quick Links</h4>
+                    <h4 class="font-bold text-white mb-4 lang-my hidden">Quick Links</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#about" class="hover:text-cyan-400 transition-colors lang-en">About Us</a></li>
+                        <li><a href="#services" class="hover:text-cyan-400 transition-colors lang-en">Services</a></li>
+                         <li><a href="#market" class="hover:text-cyan-400 transition-colors lang-en">Market</a></li>
+                        <li><a href="#portfolio" class="hover:text-cyan-400 transition-colors lang-en">Portfolio</a></li>
+                        <li><a href="#faq" class="faq-trigger hover:text-cyan-400 transition-colors cursor-pointer lang-en">FAQ</a></li>
+                        
+                        <li><a href="#about" class="hover:text-cyan-400 transition-colors lang-my hidden">ကျွန်ုပ်တို့အကြောင်း</a></li>
+                        <li><a href="#services" class="hover:text-cyan-400 transition-colors lang-my hidden">ဝန်ဆောင်မှု</a></li>
+                        <li><a href="#market" class="hover:text-cyan-400 transition-colors lang-my hidden">ဈေးကွက်</a></li>
+                        <li><a href="#portfolio" class="hover:text-cyan-400 transition-colors lang-my hidden">လုပ်ငန်းနမူနာ</a></li>
+                        <li><a href="#faq" class="faq-trigger hover:text-cyan-400 transition-colors cursor-pointer lang-my hidden">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4 lang-en">Contact</h4>
+                    <h4 class="font-bold text-white mb-4 lang-my hidden">ဆက်သွယ်ရန်</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="mailto:contact@wemarz.com" class="hover:text-cyan-400 transition-colors">contact@wemarz.com</a></li>
+                        <li><a href="tel:+959123456789" class="hover:text-cyan-400 transition-colors">+959 123 456 789</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-white mb-4 lang-en">Follow Us</h4>
+                    <h4 class="font-bold text-white mb-4 lang-my hidden">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i data-feather="github"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i data-feather="linkedin"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-cyan-400 transition-colors"><i data-feather="twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-12 pt-8 border-t border-white/10 text-center text-gray-500 text-sm">
+                <p>© <span id="year"></span> Wemarz. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals (target="_blank" has been removed from all demo links) -->
+    <div id="case-study-main-modal" class="modal">
+        <div class="glass-card p-4 md:p-8 rounded-2xl max-w-5xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+             <button data-modal-close="case-study-main" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+    
+            <div class="container mx-auto px-2 md:px-6 py-8">
+                <section class="text-center mb-12">
+                    <div class="lang-en">
+                        <h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tighter mb-4">Interactive Streaming Platform</h1>
+                        <p class="max-w-3xl mx-auto text-lg text-gray-400">A conceptual project showcasing how to transform a standard movie browser into an immersive, memorable user experience.</p>
+                    </div>
+                     <div class="lang-my hidden">
+                        <h1 class="text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">Interactive Streaming Platform</h1>
+                        <p class="max-w-3xl mx-auto text-lg text-gray-400">ရိုးရှင်းသော movie browser တစ်ခုကို အသုံးပြုသူများအတွက် စွဲမက်ဖွယ်ကောင်းပြီး အမှတ်တရဖြစ်စေမည့် အတွေ့အကြုံအဖြစ်သို့ ပြောင်းလဲပုံဖော်ထားသည့် conceptual project တစ်ခု။</p>
+                    </div>
+                </section>
+    
+                <section class="mb-12">
+                    <div class="glass-card p-2">
+                        <img src="stream.png" alt="Video Streaming Platform Screenshot" class="rounded-lg w-full" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/050509/FFFFFF?text=Streaming+Platform';">
+                    </div>
+                </section>
+    
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <section class="glass-card p-6 md:p-8 mb-8">
+                            <div class="lang-en">
+                                <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>The Challenge</h2>
+                                <p class="text-gray-400 leading-relaxed">The goal was to move beyond the traditional grid-based layout for a streaming service. The key challenge was to create a user interface that was not just functional, but also captivating and adventurous. The platform needed to make the act of browsing for a movie feel like an exploration, encouraging user engagement and creating a strong brand identity.</p>
+                            </div>
+                            <div class="lang-my hidden">
+                                <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>စိန်ခေါ်မှု</h2>
+                                <p class="text-gray-400 leading-relaxed">Streaming service တစ်ခုအတွက် သမားရိုးကျ grid ပုံစံ layout မှ ခွဲထွက်ရန်မှာ အဓိကရည်ရွယ်ချက်ဖြစ်ပါသည်။ အဓိကစိန်ခေါ်မှုမှာ အသုံးဝင်ရုံသာမက စိတ်ဝင်စားဖွယ်ကောင်းပြီး စွန့်စားခန်းတစ်ခုကဲ့သို့ဖြစ်စေမည့် user interface တစ်ခုကို ဖန်တီးရန်ဖြစ်သည်။ Platform သည် ရုပ်ရှင်ကြည့်ရှုခြင်းကို စူးစမ်းရှာဖွေခြင်းကဲ့သို့ ခံစားရစေပြီး၊ အသုံးပြုသူ၏စိတ်ဝင်စားမှုကို မြှင့်တင်ပေးကာ ခိုင်မာသော brand identity တစ်ခုကို ဖန်တီးပေးရန် လိုအပ်ပါသည်။</p>
+                            </div>
+                        </section>
+    
+                        <section class="glass-card p-6 md:p-8">
+                            <div class="lang-en">
+                                <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>The Solution</h2>
+                                <p class="text-gray-400 leading-relaxed">We engineered an advanced, client-side web application using **Vanilla JavaScript** and **Three.js**. The centerpiece is a 3D "Galaxy Navigator," where each movie category is represented as a unique planet. Users can fly between these planets to explore different genres, turning browsing into an interactive journey.</p>
+                                <p class="text-gray-400 leading-relaxed mt-4">To further enhance interactivity, we integrated the **Google Gemini API** with streaming support. This allows users to ask an AI assistant questions about the selected movie and receive instant, conversational answers, creating a deeply personalized experience without needing a traditional backend.</p>
+                            </div>
+                             <div class="lang-my hidden">
+                                <h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>ဖြေရှင်းမှု</h2>
+                                <p class="text-gray-400 leading-relaxed">**Vanilla JavaScript** နှင့် **Three.js** ကို အသုံးပြု၍ အဆင့်မြင့် client-side web application တစ်ခုကို တီထွင်ခဲ့သည်။ အဓိက feature မှာ ရုပ်ရှင်အမျိုးအစားတစ်ခုစီကို သီးခြားဂြိုဟ်တစ်ခုအဖြစ် ကိုယ်စားပြုသည့် 3D "Galaxy Navigator" ဖြစ်သည်။ အသုံးပြုသူများသည် ဤဂြိုဟ်များကြားတွင် ကူးလူးပျံသန်းနိုင်ပြီး အမျိုးအစားအလိုက် စူးစမ်းရှာဖွေနိုင်ကာ ကြည့်ရှုခြင်းကို interactive ခရီးစဉ်တစ်ခုအဖြစ် ပြောင်းလဲပေးပါသည်။</p>
+                                <p class="text-gray-400 leading-relaxed mt-4">ထို့အပြင်၊ **Google Gemini API** ကို streaming support ဖြင့် ချိတ်ဆက်ထားပါသည်။ ၎င်းသည် အသုံးပြုသူများအား ရွေးချယ်ထားသောရုပ်ရှင်နှင့်ပတ်သက်၍ AI assistant ကို မေးခွန်းများမေးမြန်းနိုင်ပြီး၊ backend မလိုအပ်ဘဲ အလွန် personal ကျသော အတွေ့အကြုံကို ဖန်တီးပေးပါသည်။</p>
+                            </div>
+                        </section>
+                    </div>
+    
+                    <aside>
+                        <div class="glass-card p-8 sticky top-8">
+                            <h3 class="text-xl font-bold text-white mb-6 lang-en">Project Info</h3>
+                            <h3 class="text-xl font-bold text-white mb-6 lang-my hidden">Project အချက်အလက်</h3>
+                            <div class="space-y-5">
+                                <div>
+                                    <h4 class="font-semibold text-gray-200 lang-en">Our Role</h4>
+                                    <h4 class="font-semibold text-gray-200 lang-my hidden">ကျွန်ုပ်တို့၏ အခန်းကဏ္ဍ</h4>
+                                    <p class="text-cyan-400">Front-End Development, 3D/UI Design</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white lang-en">Technologies Used</h4>
+                                    <h4 class="font-semibold text-white lang-my hidden">အသုံးပြုခဲ့သော နည်းပညာများ</h4>
+                                    <div class="flex flex-wrap gap-2 mt-2">
+                                        <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">HTML5</span>
+                                        <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Tailwind CSS</span>
+                                        <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">JavaScript (ES6+)</span>
+                                        <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Three.js</span>
+                                        <span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Gemini API</span>
+                                    </div>
+                                </div>
+                                 <div>
+                                    <h4 class="font-semibold text-white lang-en">Timeline</h4>
+                                    <h4 class="font-semibold text-white lang-my hidden">အချိန်ကာလ</h4>
+                                    <p class="text-cyan-400">3 Weeks (Concept & Development)</p>
+                                </div>
+                                <div>
+                                    <a href="video.html" class="inline-block w-full text-center bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                                        <span class="lang-en">View Live Demo →</span>
+                                        <span class="lang-my hidden">Live Demo ကြည့်ရန် →</span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="case-study-coffee-modal" class="modal">
+        <div class="glass-card p-4 md:p-8 rounded-2xl max-w-5xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+            <button data-modal-close="case-study-coffee" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div class="container mx-auto px-2 md:px-6 py-8">
+                <section class="text-center mb-12">
+                    <div class="lang-en"><h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tighter mb-4">Modern Coffee Shop Website</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">A website designed to capture the warm and cozy atmosphere of a local coffee haven, featuring online ordering.</p></div>
+                    <div class="lang-my hidden"><h1 class="text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">ခေတ်မီကော်ဖီဆိုင် Website</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">ဒေသခံကော်ဖီဆိုင်လေး၏ နွေးထွေးပြီး သက်တောင့်သက်သာရှိသော ခံစားချက်ကို ပုံဖော်ထားသည့် website ဖြစ်ပြီး online မှ မှာယူနိုင်ရန်လည်း ထည့်သွင်းထားသည်။</p></div>
+                </section>
+                <section class="mb-12"><div class="glass-card p-2"><img src="project-coffee-thumb.jpg" alt="Coffee Shop Website" class="rounded-lg w-full" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/050509/FFFFFF?text=Coffee+Shop';"></div></section>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <section class="glass-card p-6 md:p-8 mb-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>The Challenge</h2><p class="text-gray-400 leading-relaxed">The main challenge was to translate the physical ambiance of the coffee shop—its warmth, aroma, and community feel—into a digital experience. The website needed to be more than just a menu; it had to be an inviting digital storefront that encourages both online orders and in-person visits.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>စိန်ခေါ်မှု</h2><p class="text-gray-400 leading-relaxed">အဓိကစိန်ခေါ်မှုမှာ ကော်ဖီဆိုင်၏ နွေးထွေးမှု၊ မွှေးရနံ့နှင့် ရင်းနှီးဖော်ရွေသော ခံစားချက်တို့ကို ဒစ်ဂျစ်တယ်အတွေ့အကြုံအဖြစ် ပြောင်းလဲရန်ဖြစ်သည်။ Website သည် menu တစ်ခုထက်ပို၍ online မှ မှာယူမှုများနှင့် ဆိုင်သို့လာရောက်လည်ပတ်မှုများကိုပါ အားပေးသည့် ဆွဲဆောင်မှုရှိသော digital storefront တစ်ခုဖြစ်ရန် လိုအပ်ပါသည်။</p></div>
+                        </section>
+                        <section class="glass-card p-6 md:p-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>The Solution</h2><p class="text-gray-400 leading-relaxed">We developed a visually rich website using warm color palettes, high-quality imagery, and subtle parallax scrolling effects to create depth and engagement. An intuitive online ordering system was integrated, allowing customers to easily browse the menu and place orders for pickup. The design is fully responsive, ensuring a seamless experience on any device.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>ဖြေရှင်းမှု</h2><p class="text-gray-400 leading-relaxed">နွေးထွေးသောအရောင်များ၊ အရည်အသွေးမြင့်ဓာတ်ပုံများနှင့် parallax scrolling effect များကို အသုံးပြု၍ ဆွဲဆောင်မှုရှိသော website တစ်ခုကို တည်ဆောက်ခဲ့သည်။ အသုံးပြုရလွယ်ကူသော online ordering system ကို ထည့်သွင်းထားပြီး၊ menu ကိုလွယ်ကူစွာကြည့်ရှုနိုင်ပြီး မှာယူနိုင်ပါသည်။ Design သည် device အားလုံးတွင် ကောင်းမွန်စွာအလုပ်လုပ်နိုင်ရန် fully responsive ဖြစ်အောင် ပြုလုပ်ထားသည်။</p></div>
+                        </section>
+                    </div>
+                    <aside>
+                        <div class="glass-card p-8 sticky top-8">
+                            <h3 class="text-xl font-bold text-white mb-6 lang-en">Project Info</h3><h3 class="text-xl font-bold text-white mb-6 lang-my hidden">Project အချက်အလက်</h3>
+                            <div class="space-y-5">
+                                <div><h4 class="font-semibold text-gray-200 lang-en">Our Role</h4><h4 class="font-semibold text-gray-200 lang-my hidden">ကျွန်ုပ်တို့၏ အခန်းကဏ္ဍ</h4><p class="text-cyan-400">UI/UX Design, Front-End Development</p></div>
+                                <div><h4 class="font-semibold text-white lang-en">Technologies Used</h4><h4 class="font-semibold text-white lang-my hidden">အသုံးပြုခဲ့သော နည်းပညာများ</h4><div class="flex flex-wrap gap-2 mt-2"><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">HTML5</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Tailwind CSS</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">JavaScript</span></div></div>
+                                <div><h4 class="font-semibold text-white lang-en">Timeline</h4><h4 class="font-semibold text-white lang-my hidden">အချိန်ကာလ</h4><p class="text-cyan-400">4 Weeks</p></div>
+                                <div><a href="coffee.html" class="inline-block w-full text-center bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300"><span class="lang-en">View Live Demo →</span><span class="lang-my hidden">Live Demo ကြည့်ရန် →</span></a></div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="case-study-ecommerce-modal" class="modal">
+        <div class="glass-card p-4 md:p-8 rounded-2xl max-w-5xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+            <button data-modal-close="case-study-ecommerce" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div class="container mx-auto px-2 md:px-6 py-8">
+                <section class="text-center mb-12">
+                    <div class="lang-en"><h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tighter mb-4">Artisan E-commerce Platform</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">An online marketplace for handcrafted goods, designed to highlight the unique story behind each product.</p></div>
+                    <div class="lang-my hidden"><h1 class="text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">လက်မှုပညာ E-commerce Platform</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">ကုန်ပစ္စည်းတစ်ခုချင်းစီ၏ နောက်ကွယ်မှ ထူးခြားသောဇာတ်လမ်းကို ပေါ်လွင်စေရန် ဒီဇိုင်းထုတ်ထားသော လက်မှုပစ္စည်းများအတွက် online marketplace တစ်ခု။</p></div>
+                </section>
+                <section class="mb-12"><div class="glass-card p-2"><img src="project-ecommerce-thumb.jpg" alt="E-commerce Website" class="rounded-lg w-full" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/050509/FFFFFF?text=E-commerce';"></div></section>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <section class="glass-card p-6 md:p-8 mb-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>The Challenge</h2><p class="text-gray-400 leading-relaxed">Standard e-commerce templates often fail to capture the uniqueness of artisanal products. The challenge was to create a platform that balances a clean, modern shopping experience with rich storytelling, allowing each artisan's craft to shine while ensuring the checkout process is simple and secure.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>စိန်ခေါ်မှု</h2><p class="text-gray-400 leading-relaxed">သမားရိုးကျ e-commerce template များသည် လက်မှုပစ္စည်းများ၏ ထူးခြားမှုကို မဖမ်းစားနိုင်ပါ။ စိန်ခေါ်မှုမှာ သန့်ရှင်းခေတ်မီသော ဈေးဝယ်အတွေ့အကြုံနှင့် ဇာတ်လမ်းပြောပြမှုကို ဟန်ချက်ညီစေရန်၊ လက်မှုပညာရှင်တစ်ဦးချင်းစီ၏ လက်ရာကို ပေါ်လွင်စေပြီး checkout process ကို ရိုးရှင်းလုံခြုံအောင် ပြုလုပ်ရန်ဖြစ်သည်။</p></div>
+                        </section>
+                        <section class="glass-card p-6 md:p-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>The Solution</h2><p class="text-gray-400 leading-relaxed">We built a custom e-commerce theme with a strong focus on high-resolution product imagery and video. Each product page is designed like a story, with space for the artisan's profile and process. The platform features advanced filtering, a secure payment gateway, and a user-friendly cart, all wrapped in a minimalist, elegant design that puts the products first.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>ဖြေရှင်းမှု</h2><p class="text-gray-400 leading-relaxed">High-resolution ဓာတ်ပုံများနှင့် video များကို အဓိကထား၍ custom e-commerce theme တစ်ခုကို တည်ဆောက်ခဲ့သည်။ Product page တိုင်းကို လက်မှုပညာရှင်၏ profile နှင့် ဖန်တီးမှုလုပ်ငန်းစဉ်အတွက် နေရာပါသော ဇာတ်လမ်းတစ်ပုဒ်ကဲ့သို့ ဒီဇိုင်းထုတ်ထားသည်။ Platform တွင် အဆင့်မြင့် filtering၊ လုံခြုံသော payment gateway နှင့် အသုံးပြုရလွယ်ကူသော cart တို့ပါဝင်ပြီး၊ ကုန်ပစ္စည်းများကို ရှေ့တန်းတင်သည့် minimalist design ဖြင့် ပြုလုပ်ထားသည်။</p></div>
+                        </section>
+                    </div>
+                    <aside>
+                        <div class="glass-card p-8 sticky top-8">
+                            <h3 class="text-xl font-bold text-white mb-6 lang-en">Project Info</h3><h3 class="text-xl font-bold text-white mb-6 lang-my hidden">Project အချက်အလက်</h3>
+                            <div class="space-y-5">
+                                <div><h4 class="font-semibold text-gray-200 lang-en">Our Role</h4><h4 class="font-semibold text-gray-200 lang-my hidden">ကျွန်ုပ်တို့၏ အခန်းကဏ္ဍ</h4><p class="text-cyan-400">Full-Stack Development, UI/UX</p></div>
+                                <div><h4 class="font-semibold text-white lang-en">Technologies Used</h4><h4 class="font-semibold text-white lang-my hidden">အသုံးပြုခဲ့သော နည်းပညာများ</h4><div class="flex flex-wrap gap-2 mt-2"><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Shopify</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Liquid</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">JavaScript</span></div></div>
+                                <div><h4 class="font-semibold text-white lang-en">Timeline</h4><h4 class="font-semibold text-white lang-my hidden">အချိန်ကာလ</h4><p class="text-cyan-400">6 Weeks</p></div>
+                                <div><a href="https://shop.wemarz.com" target="_blank" rel="noopener noreferrer" class="inline-block w-full text-center bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300"><span class="lang-en">View Live Demo →</span><span class="lang-my hidden">Live Demo ကြည့်ရန် →</span></a></div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="case-study-blog-modal" class="modal">
+        <div class="glass-card p-4 md:p-8 rounded-2xl max-w-5xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+            <button data-modal-close="case-study-blog" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-20">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div class="container mx-auto px-2 md:px-6 py-8">
+                <section class="text-center mb-12">
+                    <div class="lang-en"><h1 class="text-3xl md:text-5xl font-extrabold text-white tracking-tighter mb-4">Immersive Travel Blog</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">A content-focused platform for a travel writer, designed to make readers feel like they're part of the journey.</p></div>
+                    <div class="lang-my hidden"><h1 class="text-3xl md:text-5xl font-bold text-white tracking-tighter mb-4">စွဲမက်ဖွယ် ခရီးသွား Blog</h1><p class="max-w-3xl mx-auto text-lg text-gray-400">ခရီးသွားစာရေးဆရာတစ်ဦးအတွက် အကြောင်းအရာကို အဓိကထားသည့် platform တစ်ခုဖြစ်ပြီး၊ စာဖတ်သူများကို ခရီးစဉ်၏အစိတ်အပိုင်းတစ်ခုအဖြစ် ခံစားရစေရန် ဒီဇိုင်းထုတ်ထားသည်။</p></div>
+                </section>
+                <section class="mb-12"><div class="glass-card p-2"><img src="project-blog-thumb.jpg" alt="Travel Blog Website" class="rounded-lg w-full" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://placehold.co/1200x675/050509/FFFFFF?text=Travel+Blog';"></div></section>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2">
+                        <section class="glass-card p-6 md:p-8 mb-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>The Challenge</h2><p class="text-gray-400 leading-relaxed">For a travel blog, the presentation is just as important as the content. The challenge was to create a distraction-free reading environment that emphasizes beautiful photography and elegant typography, while still being fast, responsive, and easy for the author to update.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="flag" class="w-6 h-6 mr-3 text-cyan-400"></i>စိန်ခေါ်မှု</h2><p class="text-gray-400 leading-relaxed">ခရီးသွား blog တစ်ခုအတွက်၊ တင်ဆက်မှုသည် အကြောင်းအရာကဲ့သို့ပင် အရေးကြီးပါသည်။ စိန်ခေါ်မှုမှာ လှပသောဓာတ်ပုံပညာနှင့် typography ကို အလေးပေးသည့် အာရုံစူးစိုက်မှုကို မပျက်ပြားစေသော စာဖတ်ပတ်ဝန်းကျင်တစ်ခုကို ဖန်တီးရန်ဖြစ်ပြီး၊ တစ်ချိန်တည်းမှာပင် မြန်ဆန်၊ responsive ဖြစ်ပြီး စာရေးသူအတွက် update လုပ်ရန် လွယ်ကူစေရန်ဖြစ်သည်။</p></div>
+                        </section>
+                        <section class="glass-card p-6 md:p-8">
+                            <div class="lang-en"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>The Solution</h2><p class="text-gray-400 leading-relaxed">We designed a clean, minimalist layout with a focus on readability. Large, full-bleed images and carefully selected fonts create an immersive experience. The backend was built on a headless CMS, giving the author a simple interface to publish new stories while allowing us to build a lightning-fast front-end with modern web technologies.</p></div>
+                            <div class="lang-my hidden"><h2 class="text-2xl font-bold text-white mb-4 flex items-center"><i data-feather="tool" class="w-6 h-6 mr-3 text-cyan-400"></i>ဖြေရှင်းမှု</h2><p class="text-gray-400 leading-relaxed">ဖတ်ရှုရလွယ်ကူမှုကို အဓိကထား၍ သန့်ရှင်းသော minimalist layout ကို ဒီဇိုင်းထုတ်ခဲ့သည်။ ကြီးမားသော full-bleed ပုံများနှင့် ဂရုတစိုက်ရွေးချယ်ထားသော font များသည် စွဲမက်ဖွယ်အတွေ့အကြုံကို ဖန်တီးပေးသည်။ Backend ကို headless CMS ဖြင့် တည်ဆောက်ထားပြီး၊ စာရေးသူအား ဇာတ်လမ်းအသစ်များထုတ်ဝေရန် ရိုးရှင်းသော interface တစ်ခုပေးထားပြီး၊ ကျွန်ုပ်တို့အား ခေတ်မီ web technologies များဖြင့် လျှပ်စီးလက်သကဲ့သို့မြန်သော front-end ကို တည်ဆောက်နိုင်စေသည်။</p></div>
+                        </section>
+                    </div>
+                    <aside>
+                        <div class="glass-card p-8 sticky top-8">
+                            <h3 class="text-xl font-bold text-white mb-6 lang-en">Project Info</h3><h3 class="text-xl font-bold text-white mb-6 lang-my hidden">Project အချက်အလက်</h3>
+                            <div class="space-y-5">
+                                <div><h4 class="font-semibold text-gray-200 lang-en">Our Role</h4><h4 class="font-semibold text-gray-200 lang-my hidden">ကျွန်ုပ်တို့၏ အခန်းကဏ္ဍ</h4><p class="text-cyan-400">Web Design, CMS Integration</p></div>
+                                <div><h4 class="font-semibold text-white lang-en">Technologies Used</h4><h4 class="font-semibold text-white lang-my hidden">အသုံးပြုခဲ့သော နည်းပညာများ</h4><div class="flex flex-wrap gap-2 mt-2"><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Next.js</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Tailwind CSS</span><span class="bg-cyan-900/50 text-cyan-300 text-xs font-medium px-2.5 py-1 rounded-full">Headless CMS</span></div></div>
+                                <div><h4 class="font-semibold text-white lang-en">Timeline</h4><h4 class="font-semibold text-white lang-my hidden">အချိန်ကာလ</h4><p class="text-cyan-400">5 Weeks</p></div>
+                                <div><a href="blog.html" class="inline-block w-full text-center bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300"><span class="lang-en">View Live Demo →</span><span class="lang-my hidden">Live Demo ကြည့်ရန် →</span></a></div>
+                            </div>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="fab-container" class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+        <div id="fab-options" class="flex flex-col items-end space-y-3 mb-3">
+            <div class="fab-option-container">
+                <div class="fab-label">
+                    <span class="lang-en">Live Chat</span>
+                    <span class="lang-my hidden">Live Chat</span>
+                </div>
+                <button id="fab-live-chat" class="fab-option bg-violet-500 hover:bg-violet-600 text-white w-14 h-16 flex items-center justify-center shadow-lg" style="--glow-color: #8b5cf6;">
+                    <i data-feather="message-circle" class="w-7 h-7"></i>
+                </button>
+            </div>
+            <div class="fab-option-container">
+                <div class="fab-label">
+                    <span class="lang-en">Contact Us</span>
+                    <span class="lang-my hidden">ဆက်သွယ်ရန်</span>
+                </div>
+                <button id="fab-contact" class="fab-option bg-green-500 hover:bg-green-600 text-white w-14 h-16 flex items-center justify-center shadow-lg" style="--glow-color: #22c55e;">
+                    <i data-feather="mail" class="w-7 h-7"></i>
+                </button>
+            </div>
+        </div>
+
+        <button id="floating-contact-btn" class="bg-cyan-500 hover:bg-cyan-600 text-white w-16 h-[72px] flex items-center justify-center shadow-lg relative">
+            <i data-feather="message-square" class="w-8 h-8 fab-icon-open absolute"></i>
+            <i data-feather="x" class="w-8 h-8 absolute opacity-0 fab-icon-close"></i>
+        </button>
+    </div>
+    
+    <div id="fab-overlay" class="fixed inset-0 bg-black/60 z-30 opacity-0 pointer-events-none transition-opacity duration-300"></div>
+
+    <div id="contact-modal" class="modal">
+        <div class="glass-card p-8 md:p-12 rounded-2xl max-w-3xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+            <button id="close-contact-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div class="text-center max-w-3xl mx-auto">
+                <div class="lang-en"><h2 class="text-3xl font-bold text-white emboss-text mb-2">Let's Build Together</h2><p class="text-lg text-gray-400 mb-8">Have a project in mind? We'd love to hear from you.</p></div>
+                <div class="lang-my hidden"><h2 class="text-3xl font-bold text-white emboss-text mb-2">အတူတကွ တည်ဆောက်ကြစို့</h2><p class="text-lg text-gray-400 mb-8">Project အတွက် စိတ်ကူးရှိပါသလား။ ဆက်သွယ်လိုက်ပါ။</p></div>
+            </div>
+            <form name="contact" method="POST" data-netlify="true">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label for="modal-name" class="block text-gray-300 mb-2 lang-en">Name</label>
+                        <label for="modal-name" class="block text-gray-300 mb-2 lang-my hidden">အမည်</label>
+                        <input type="text" id="modal-name" name="name" class="contact-input w-full p-3 bg-white/5 rounded-lg border border-white/10 focus:outline-none focus:border-cyan-500 transition-colors" required>
+                    </div>
+                    <div>
+    <label for="modal-email" class="block text-gray-300 mb-2 lang-en">Email</label>
+    <label for="modal-email" class="block text-gray-300 mb-2 lang-my hidden">အီးမေးလ်</label>
+    <input type="email" id="modal-email" name="email" class="contact-input w-full p-3 bg-white/5 rounded-lg border border-white/10 focus:outline-none focus:border-cyan-500 transition-colors" required>
+</div>
+                </div>
+                <div class="mb-6">
+                    <label for="modal-message" class="block text-gray-300 mb-2 lang-en">Message</label>
+                    <label for="modal-message" class="block text-gray-300 mb-2 lang-my hidden">Message</label>
+                    <textarea id="modal-message" name="message" rows="5" maxlength="1500" class="contact-input w-full p-3 bg-white/5 rounded-lg border border-white/10 focus:outline-none focus:border-cyan-500 transition-colors" required></textarea>
+                    <div class="flex justify-end text-sm text-gray-500 mt-1">
+    <div id="char-counter-en" class="lang-en">0 / 1500</div>
+    <div id="char-counter-my" class="lang-my hidden">၀ / ၁၅၀၀</div>
+</div>
+                </div>
+                <div class="text-center">
+                    <button type="submit" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                        <span class="lang-en">Send Message</span>
+                        <span class="lang-my hidden">Message ပေးပို့ရန်</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="faq-modal" class="modal">
+        <div class="glass-card p-8 md:p-12 rounded-2xl max-w-3xl w-full relative modal-content max-h-[90vh] overflow-y-auto">
+             <button id="close-faq-modal-btn" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors z-10">
+                <i data-feather="x" class="w-8 h-8"></i>
+            </button>
+            <div class="text-center mb-8">
+                <div class="lang-en"><h2 class="text-3xl font-bold text-white emboss-text">Frequently Asked Questions</h2></div>
+                <div class="lang-my hidden"><h2 class="text-3xl font-bold text-white emboss-text">အမေးများသော မေးခွန်းများ</h2></div>
+            </div>
+            <div class="divide-y divide-[var(--border-color)]">
+                <div class="faq-item py-2">
+                    <div class="faq-question flex justify-between items-center p-4 cursor-pointer hover:bg-white/5 rounded-md">
+                        <h4 class="font-semibold text-white lang-en">What is your development process?</h4>
+                        <h4 class="font-semibold text-white lang-my hidden">သင်၏ လုပ်ငန်းစဉ်က ဘယ်လိုလဲ?</h4>
+                        <i data-feather="chevron-down" class="text-gray-400 flex-shrink-0"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="p-4 pt-2 text-gray-400 lang-en">Our process is collaborative and transparent. We start with a discovery phase to understand your goals, followed by design, development, and finally, the launch. We keep you updated at every stage. You can see the full process in the "Our Process" section above.</p>
+                        <p class="p-4 pt-2 text-gray-400 lang-my hidden">ကျွန်ုပ်တို့၏လုပ်ငန်းစဉ်သည် ပူးပေါင်းဆောင်ရွက်မှုနှင့် ပွင့်လင်းမြင်သာမှုကို အခြေခံသည်။ သင်၏ရည်မှန်းချက်များကို နားလည်ရန် discovery အဆင့်ဖြင့်စတင်ပြီးနောက် ဒီဇိုင်း၊ တည်ဆောက်ခြင်း၊ နှင့် နောက်ဆုံးတွင် လွှင့်တင်ခြင်းတို့ ပါဝင်သည်။ အဆင့်တိုင်းတွင် သင့်အား အသိပေးနေပါမည်။ အပေါ်ရှိ "ကျွန်ုပ်တို့၏ လုပ်ငန်းစဉ်" section တွင် အသေးစိတ်ကြည့်ရှုနိုင်ပါသည်။</p>
+                    </div>
+                </div>
+                <div class="faq-item py-2">
+                    <div class="faq-question flex justify-between items-center p-4 cursor-pointer hover:bg-white/5 rounded-md">
+                        <h4 class="font-semibold text-white lang-en">How long does it take to build a website?</h4>
+                        <h4 class="font-semibold text-white lang-my hidden">Website တစ်ခုတည်ဆောက်ရန် ဘယ်လောက်ကြာမလဲ?</h4>
+                        <i data-feather="chevron-down" class="text-gray-400 flex-shrink-0"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="p-4 pt-2 text-gray-400 lang-en">The timeline varies depending on the project's complexity. A simple marketing website might take 2-4 weeks, while a complex e-commerce platform could take 2-3 months. After our initial discussion, we'll provide a detailed timeline for your specific project.</p>
+                        <p class="p-4 pt-2 text-gray-400 lang-my hidden">အချိန်ကာလသည် project ၏ ရှုပ်ထွေးမှုအပေါ်မူတည်၍ ကွဲပြားပါသည်။ ရိုးရှင်းသော marketing website တစ်ခုသည် ၂-၄ ပတ်ခန့် ကြာနိုင်ပြီး၊ ရှုပ်ထွေးသော e-commerce platform တစ်ခုသည် ၂-၃ လအထိ ကြာနိုင်ပါသည်။ ကျွန်ုပ်တို့၏ ကနဦးဆွေးနွေးမှုအပြီးတွင် သင်၏ project အတွက် အသေးစိတ်အချိန်ဇယားကို ပေးပါမည်။</p>
+                    </div>
+                </div>
+                <div class="faq-item py-2">
+                    <div class="faq-question flex justify-between items-center p-4 cursor-pointer hover:bg-white/5 rounded-md">
+                        <h4 class="font-semibold text-white lang-en">What do you need from me to start?</h4>
+                        <h4 class="font-semibold text-white lang-my hidden">စတင်ရန် သင့်ထံမှ ဘာတွေလိုအပ်ပါသလဲ?</h4>
+                        <i data-feather="chevron-down" class="text-gray-400 flex-shrink-0"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="p-4 pt-2 text-gray-400 lang-en">To get started, we'll need a clear idea of your project goals, target audience, any existing brand guidelines (logo, colors), and the content (text, images) for the website. Don't worry if you don't have everything, we can figure it out together during the discovery phase.</p>
+                        <p class="p-4 pt-2 text-gray-400 lang-my hidden">စတင်ရန်၊ သင်၏ project ရည်မှန်းချက်များ၊ ပစ်မှတ်ထားသော customer များ၊ ရှိပြီးသား brand လမ်းညွှန်များ (logo, အရောင်များ) နှင့် website အတွက် content (စာ၊ ပုံများ) တို့ကို ရှင်းလင်းစွာ သိရှိရန်လိုအပ်ပါသည်။ အရာအားလုံးမရှိသေးပါက စိတ်မပူပါနှင့်၊ discovery အဆင့်တွင် အတူတကွ ရှာဖွေနိုင်ပါသည်။</p>
+                    </div>
+                </div>
+                <div class="faq-item py-2">
+                    <div class="faq-question flex justify-between items-center p-4 cursor-pointer hover:bg-white/5 rounded-md">
+                        <h4 class="font-semibold text-white lang-en">Do you offer support after launch?</h4>
+                        <h4 class="font-semibold text-white lang-my hidden">Website လွှင့်တင်ပြီးနောက်ပိုင်း support ပေးပါသလား?</h4>
+                        <i data-feather="chevron-down" class="text-gray-400 flex-shrink-0"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p class="p-4 pt-2 text-gray-400 lang-en">Yes, we offer various support and maintenance packages to ensure your website remains secure, updated, and performs optimally. We can discuss the right package for you towards the end of the project.</p>
+                        <p class="p-4 pt-2 text-gray-400 lang-my hidden">ဟုတ်ကဲ့၊ သင်၏ website ကို လုံခြုံ၊ နောက်ဆုံးပေါ်ဖြစ်ပြီး အကောင်းဆုံးအလုပ်လုပ်စေရန် အမျိုးမျိုးသော support နှင့် maintenance package များကို ပေးပါသည်။ project ပြီးဆုံးခါနီးတွင် သင့်အတွက် သင့်တော်သော package ကို ဆွေးနွေးနိုင်ပါသည်။</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/script.js"></script>
+</body>
+</html>

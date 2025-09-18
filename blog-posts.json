@@ -1,0 +1,56 @@
+{
+  "posts": [
+    {
+      "id": "myeik",
+      "image": "blog-myeik.jpg",
+      "isLarge": true,
+      "en": {
+        "title": "Islands of Serenity: A Myeik Archipelago Journal",
+        "description": "Discovering the untouched beauty of Myanmar's southern isles."
+      },
+      "my": {
+        "title": "ငြိမ်းချမ်းခြင်း၏ ကျွန်းများ: မြိတ်ကျွန်းစု ဒိုင်ယာရီ",
+        "description": "မြန်မာနိုင်ငံတောင်ပိုင်းရှိ ကျွန်းများ၏ မထိတွေ့သေးသော အလှတရားကို ရှာဖွေခြင်း။"
+      }
+    },
+    {
+      "id": "ngapali",
+      "image": "blog-ngapali.jpg",
+      "isLarge": false,
+      "en": {
+        "title": "Ngapali's Golden Hour",
+        "description": "Chasing sunsets on the shores of paradise."
+      },
+      "my": {
+        "title": "ငပလီ၏ ရွှေရောင်အချိန်",
+        "description": "ကမ်းခြေမှ နေဝင်ချိန်အလှကို ခံစားခြင်း။"
+      }
+    },
+    {
+      "id": "greenland",
+      "image": "blog-greenland.jpg",
+      "isLarge": false,
+      "en": {
+        "title": "Ice Giants of Greenland",
+        "description": "An epic adventure into the arctic silence."
+      },
+      "my": {
+        "title": "ဂရင်းလန်မှ ရေခဲတောင်ကြီးများ",
+        "description": "အာတိတ်ဒေသ၏ တိတ်ဆိတ်ခြင်းထဲသို့ စွန့်စားခရီး။"
+      }
+    },
+    {
+      "id": "europe",
+      "image": "blog-europe.jpg",
+      "isLarge": false,
+      "en": {
+        "title": "Cobblestone Chronicles",
+        "description": "Wandering through Europe's most charming streets."
+      },
+      "my": {
+        "title": "ဥရောပမှ ကျောက်ပြားလမ်းပုံပြင်",
+        "description": "ဥရောပ၏ ဆွဲဆောင်မှုအရှိဆုံးလမ်းများပေါ်တွင် လျှောက်သွားခြင်း။"
+      }
+    }
+  ]
+}

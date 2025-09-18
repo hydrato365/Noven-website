@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineLux</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <style>
+        /* Custom Styles */
+        body {
+            background-color: #0c0a18;
+            color: #ffffff;
+        }
+        .font-en { font-family: 'Inter', sans-serif; }
+        .font-my { font-family: 'Padauk', sans-serif; }
+
+        .holographic-panel {
+            position: relative;
+            background: rgba(12, 10, 24, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .holographic-panel::before, .holographic-panel::after,
+        .holographic-panel > div::before, .holographic-panel > div::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-style: solid;
+            border-width: 2px;
+            transition: border-color 0.5s ease;
+        }
+        .holographic-panel::before { top: -2px; left: -2px; border-top-color: var(--glow-color); border-left-color: var(--glow-color); }
+        .holographic-panel::after { top: -2px; right: -2px; border-top-color: var(--glow-color); border-right-color: var(--glow-color); }
+        .holographic-panel > div::before { bottom: -2px; left: -2px; border-bottom-color: var(--glow-color); border-left-color: var(--glow-color); }
+        .holographic-panel > div::after { bottom: -2px; right: -2px; border-bottom-color: var(--glow-color); border-right-color: var(--glow-color); }
+
+        .header-bg {
+            background-color: rgba(12, 10, 24, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .skeleton-card {
+            background: linear-gradient(90deg, #1a1a2e 25%, #2a2a4e 50%, #1a1a2e 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0c0a18; }
+        ::-webkit-scrollbar-thumb { background: #ffd700; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e6c300; }
+
+        /* AI Chat typing indicator */
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #ffd700;
+            margin: 0 2px;
+            animation: typing 1s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="font-en overflow-x-hidden">
+
+    <!-- Header -->
+    <header id="main-header" class="fixed top-0 left-0 w-full p-4 z-50 transition-all duration-300">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- Normal Header Content -->
+            <div id="header-content" class="flex items-center gap-4 transition-opacity duration-300 w-full">
+                <button id="back-button" class="hidden">
+                    <i data-feather="arrow-left"></i>
+                </button>
+                <h1 class="text-2xl font-bold text-gold-400" style="color: #ffd700;">CineLux</h1>
+                <div class="flex-grow"></div>
+                <div class="flex items-center gap-4">
+                    <button id="search-icon"><i data-feather="search"></i></button>
+                    <button id="lang-switcher"><i data-feather="globe"></i></button>
+                    <div id="category-filter-desktop" class="relative hidden md:block">
+                        <select id="category-select-desktop" class="bg-transparent border border-gray-600 rounded-md px-3 py-1 appearance-none">
+                            <!-- Options will be populated by JS -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- Search Bar -->
+            <div id="search-bar" class="hidden w-full transition-all duration-300">
+                <div class="relative w-full">
+                    <input type="text" id="search-input" class="w-full bg-gray-800 border border-gray-600 rounded-full py-2 px-4 pl-10 text-white placeholder-gray-400" placeholder="Search movies...">
+                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><i data-feather="search" class="w-5 h-5"></i></span>
+                    <button id="close-search" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><i data-feather="x" class="w-5 h-5"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- View 1: 3D Navigator -->
+        <div id="navigator-view" class="w-screen h-screen fixed top-0 left-0">
+            <canvas id="bg-canvas"></canvas>
+            <div class="absolute inset-0 flex items-center justify-between px-4 md:px-8">
+                <button id="prev-planet" class="p-3 bg-white/10 rounded-full backdrop-blur-sm hover:bg-white/20 transition-colors"><i data-feather="chevron-left"></i></button>
+                <button id="next-planet" class="p-3 bg-white/10 rounded-full backdrop-blur-sm hover:bg-white/20 transition-colors"><i data-feather="chevron-right"></i></button>
+            </div>
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 w-11/12 md:w-1/2 lg:w-1/3">
+                <div id="info-panel" class="holographic-panel p-6 rounded-lg text-center" style="--glow-color: #ffd700;">
+                    <div class="relative">
+                        <h2 id="planet-name" class="text-2xl font-bold mb-2 transition-all duration-500"></h2>
+                        <p id="planet-desc" class="text-gray-300 mb-4 transition-all duration-500"></p>
+                        <button id="watch-now-btn" class="bg-gold-500 text-black font-bold py-2 px-6 rounded-full hover:bg-gold-400 transition-all duration-300" style="background-color: #ffd700;"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 2: Grid View -->
+        <div id="grid-view" class="hidden pt-24 pb-24">
+            <div class="container mx-auto px-4">
+                <div id="movie-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                    <!-- Movie cards will be populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- View 3: Player View -->
+        <div id="player-view" class="hidden pt-24 pb-24">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Column: Player and Info -->
+                    <div class="lg:col-span-2">
+                        <!-- Video Player -->
+                        <div id="video-container" class="aspect-video bg-black rounded-lg mb-6 relative overflow-hidden">
+                            <div id="video-loader" class="absolute inset-0 flex items-center justify-center bg-black">
+                                <div class="w-12 h-12 border-4 border-t-gold-500 border-gray-700 rounded-full animate-spin" style="border-top-color: #ffd700;"></div>
+                            </div>
+                            <iframe id="youtube-player" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <!-- Movie Info -->
+                        <div id="movie-info">
+                            <h2 id="movie-title" class="text-3xl font-bold mb-2"></h2>
+                            <div class="flex items-center gap-4 text-gray-400 mb-4">
+                                <span id="movie-year"></span>
+                                <span>&bull;</span>
+                                <span id="movie-genre"></span>
+                            </div>
+                            <p id="movie-description" class="text-gray-300 leading-relaxed"></p>
+                            <button id="read-more-btn" class="text-gold-400 mt-2" style="color: #ffd700;"></button>
+                        </div>
+                    </div>
+                    <!-- Right Column: Recommendations and Chat -->
+                    <div class="lg:col-span-1 flex flex-col gap-8">
+                        <!-- Recommendations -->
+                        <div>
+                            <h3 class="text-xl font-bold mb-4" data-lang-key="recommendations">Recommendations</h3>
+                            <div id="recommendations-list" class="flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-2">
+                                <!-- Recommended movies will be populated by JS -->
+                            </div>
+                        </div>
+                        <!-- AI Chat -->
+                        <div class="bg-gray-900/50 p-4 rounded-lg flex flex-col h-[400px]">
+                            <h3 class="text-xl font-bold mb-4" data-lang-key="ai_assistant">AI Assistant</h3>
+                            <div id="chat-history" class="flex-grow overflow-y-auto mb-4 pr-2 space-y-4">
+                                <!-- Chat messages will be populated by JS -->
+                            </div>
+                            <form id="chat-form" class="flex gap-2">
+                                <input type="text" id="chat-input" class="flex-grow bg-gray-800 border border-gray-600 rounded-full py-2 px-4 text-white placeholder-gray-400" data-lang-key-placeholder="ask_about_movie">
+                                <button type="submit" class="bg-gold-500 text-black p-2 rounded-full" style="background-color: #ffd700;"><i data-feather="send"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation -->
+    <nav id="bottom-nav" class="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-11/12 max-w-sm bg-gray-900/50 backdrop-blur-lg rounded-full shadow-lg z-50 hidden">
+        <div class="flex justify-around items-center p-2">
+            <button class="flex flex-col items-center text-gray-400" id="grid-nav-btn">
+                <i data-feather="grid"></i>
+                <span class="text-xs mt-1" data-lang-key="grid">Grid</span>
+            </button>
+            <div class="relative">
+                <button class="flex flex-col items-center text-gray-400" id="categories-nav-btn">
+                    <i data-feather="layers"></i>
+                    <span class="text-xs mt-1" data-lang-key="categories">Categories</span>
+                </button>
+                <select id="category-select-mobile" class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-40 bg-gray-800 border border-gray-600 rounded-md p-2 hidden">
+                    <!-- Options will be populated by JS -->
+                </select>
+            </div>
+             <button class="flex flex-col items-center text-gray-400" id="more-nav-btn">
+                <i data-feather="more-horizontal"></i>
+                <span class="text-xs mt-1" data-lang-key="more">More</span>
+            </button>
+        </div>
+    </nav>
+
+    <script type="module">
+        // --- DATA ---
+        const movies = [
+            { id: 1, title: 'Cybernetic Echo', genre: 'Sci-Fi', year: 2042, description: 'In a neon-drenched metropolis, a rogue android discovers a hidden truth about its creation, challenging the very definition of humanity. It must navigate a world of corporate espionage and digital ghosts to uncover its past.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Cybernetic+Echo', trailerId: 'S_dfq9rFWAE' },
+            { id: 2, title: 'The Crimson Manor', genre: 'Horror', year: 2023, description: 'A group of paranormal investigators spends a night in a haunted mansion, only to find the legends are terrifyingly real. As they delve deeper, the house itself seems to turn against them.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Crimson+Manor', trailerId: 'S_dfq9rFWAE' },
+            { id: 3, title: 'Zero Point Heist', genre: 'Action', year: 2025, description: 'An elite team of thieves is assembled to steal a revolutionary energy source. But with shifting allegiances and an impenetrable vault, the mission becomes a race against time.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Zero+Point+Heist', trailerId: 'S_dfq9rFWAE' },
+            { id: 4, title: 'Whispers of the Void', genre: 'Sci-Fi', year: 2055, description: 'The crew of a deep space exploration vessel receives a mysterious signal from an uncharted nebula. What they find there defies physics and threatens their sanity.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Void+Whispers', trailerId: 'S_dfq9rFWAE' },
+            { id: 5, title: 'The Last Ritual', genre: 'Horror', year: 2021, description: 'A small town\'s dark history resurfaces when a local historian uncovers an ancient curse. Now, she must convince the skeptical townsfolk before an ancient evil is unleashed.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Last+Ritual', trailerId: 'S_dfq9rFWAE' },
+            { id: 6, title: 'Avalanche Protocol', genre: 'Action', year: 2024, description: 'A former special forces operative is framed for a terrorist attack and must go on the run to clear his name, all while uncovering a vast government conspiracy.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Avalanche', trailerId: 'S_dfq9rFWAE' },
+            { id: 7, title: 'Starlight Odyssey', genre: 'Adventure', year: 2030, description: 'A young adventurer discovers a map to a legendary lost starship and embarks on a journey across the galaxy, making new friends and dangerous enemies along the way.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Starlight', trailerId: 'S_dfq9rFWAE' },
+            { id: 8, title: 'The Shadow Below', genre: 'Horror', year: 2022, description: 'A deep-sea mining crew awakens a primordial creature from the ocean floor. Trapped miles beneath the surface, they must fight for survival against a monster from their worst nightmares.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=The+Shadow', trailerId: 'S_dfq9rFWAE' },
+            { id: 9, title: 'Chrono-Shift', genre: 'Sci-Fi', year: 2049, description: 'A scientist invents a device that allows him to send his consciousness back in time by a few hours, but altering the past has unforeseen and catastrophic consequences.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Chrono-Shift', trailerId: 'S_dfq9rFWAE' },
+            { id: 10, title: 'Nomad\'s Creed', genre: 'Action', year: 2026, description: 'In a post-apocalyptic wasteland, a lone warrior battles rival gangs to protect a small community that holds the key to rebuilding civilization.', poster: 'https://placehold.co/400x600/0c0a18/ffd700?text=Nomad\'s+Creed', trailerId: 'S_dfq9rFWAE' },
+        ];
+
+        const genres = [
+            { name: 'All Movies', desc: 'Explore the entire CineLux collection', color: 0xffd700 },
+            { name: 'Sci-Fi', desc: 'Journey to other worlds and futures', color: 0x00aaff },
+            { name: 'Horror', desc: 'Experience spine-chilling thrills', color: 0xff0000 },
+            { name: 'Action', desc: 'Get your adrenaline pumping', color: 0xff8c00 },
+            { name: 'Adventure', desc: 'Embark on epic quests', color: 0x00ff7f },
+        ];
+
+        const translations = {
+            en: {
+                all_movies: 'All Movies',
+                sci_fi: 'Sci-Fi',
+                horror: 'Horror',
+                action: 'Action',
+                adventure: 'Adventure',
+                explore_collection: 'Explore the entire CineLux collection',
+                journey_worlds: 'Journey to other worlds and futures',
+                spine_chilling: 'Experience spine-chilling thrills',
+                adrenaline_pumping: 'Get your adrenaline pumping',
+                epic_quests: 'Embark on epic quests',
+                watch_now: 'Explore Now',
+                recommendations: 'Recommendations',
+                ai_assistant: 'AI Assistant',
+                ask_about_movie: 'Ask about this movie...',
+                read_more: 'Read More',
+                read_less: 'Read Less',
+                grid: 'Grid',
+                categories: 'Categories',
+                more: 'More',
+                search_movies: 'Search movies...'
+            },
+            my: {
+                all_movies: 'ရုပ်ရှင်အားလုံး',
+                sci_fi: 'သိပ္ပံ',
+                horror: 'ထိတ်လန့်ဖွယ်',
+                action: 'အက်ရှင်',
+                adventure: 'စွန့်စားခန်း',
+                explore_collection: 'CineLux စုစည်းမှုတစ်ခုလုံးကို စူးစမ်းပါ',
+                journey_worlds: 'အခြားကမ္ဘာများနှင့် အနာဂတ်များသို့ ခရီးသွားပါ',
+                spine_chilling: 'ကျောချမ်းစရာ သည်းထိတ်ရင်ဖိုစရာများကို တွေ့ကြုံခံစားပါ',
+                adrenaline_pumping: 'သင်၏ adrenaline ကိုစုပ်ယူပါ',
+                epic_quests: 'မော်ကွန်းရှာဖွေမှုများကို စတင်ပါ',
+                watch_now: 'ယခုစူးစမ်းပါ',
+                recommendations: 'အကြံပြုချက်များ',
+                ai_assistant: 'AI လက်ထောက်',
+                ask_about_movie: 'ဒီဇာတ်ကားအကြောင်းမေး...',
+                read_more: 'ပိုမိုဖတ်ရှုရန်',
+                read_less: 'ဒီထက်နည်းအောင်ဖတ်ပါ',
+                grid: 'ဇယားကွက်',
+                categories: 'အမျိုးအစားများ',
+                more: 'ပို',
+                search_movies: 'ရုပ်ရှင်များကို ရှာဖွေပါ...'
+            }
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentView = 'navigator';
+        let currentLanguage = localStorage.getItem('cinelux-lang') || 'en';
+        let playerHistoryStack = [];
+        let isSearchActive = false;
+        let currentPlanetIndex = 0;
+
+        // --- DOM ELEMENTS ---
+        const $ = (selector) => document.querySelector(selector);
+        const $$ = (selector) => document.querySelectorAll(selector);
+
+        const views = {
+            navigator: $('#navigator-view'),
+            grid: $('#grid-view'),
+            player: $('#player-view'),
+        };
+        const header = $('#main-header');
+        const backButton = $('#back-button');
+        const bottomNav = $('#bottom-nav');
+
+        // --- LANGUAGE ---
+        function setLanguage(lang) {
+            currentLanguage = lang;
+            localStorage.setItem('cinelux-lang', lang);
+            document.body.className = document.body.className.replace(/font-(en|my)/, `font-${lang}`);
+            
+            const t = translations[lang];
+            
+            // Update planet info
+            updatePlanetInfo(currentPlanetIndex);
+
+            // Update category dropdowns
+            populateCategoryFilters();
+
+            // Update all elements with data-lang-key
+            $$('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (t[key]) el.textContent = t[key];
+            });
+
+            // Update placeholders
+             $$('[data-lang-key-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-lang-key-placeholder');
+                if (t[key]) el.placeholder = t[key];
+            });
+        }
+
+        // --- NAVIGATION ---
+        function showView(viewId, state = {}) {
+            if (currentView === viewId && !state.force) return;
+
+            Object.values(views).forEach(v => v.classList.add('hidden'));
+            views[viewId].classList.remove('hidden');
+            currentView = viewId;
+
+            // Update UI based on view
+            backButton.classList.toggle('hidden', viewId === 'navigator');
+            bottomNav.classList.toggle('hidden', viewId === 'navigator' || window.innerWidth >= 768);
+            $('#category-filter-desktop').classList.toggle('hidden', viewId !== 'grid');
+
+            // Push state to history
+            const url = `#${viewId}` + (state.movieId ? `/${state.movieId}` : '');
+            history.pushState({ view: viewId, ...state }, '', url);
+        }
+        
+        function handleNavigation(state) {
+            if (!state) {
+                showView('navigator', { force: true });
+                return;
+            }
+            
+            switch (state.view) {
+                case 'grid':
+                    renderGridView();
+                    showView('grid', { force: true });
+                    break;
+                case 'player':
+                    renderPlayerView(state.movieId);
+                    showView('player', { force: true });
+                    break;
+                default:
+                    showView('navigator', { force: true });
+            }
+        }
+
+        window.addEventListener('popstate', (event) => {
+            if (currentView === 'player' && playerHistoryStack.length > 1) {
+                playerHistoryStack.pop(); // Remove current movie
+                const lastMovieId = playerHistoryStack[playerHistoryStack.length - 1];
+                renderPlayerView(lastMovieId); // Render previous movie
+                // We don't call showView because we are staying in the player view
+                // We also don't push a new state, popstate already changed it
+            } else {
+                if (currentView === 'player') playerHistoryStack = [];
+                handleNavigation(event.state);
+            }
+        });
+
+        backButton.addEventListener('click', () => history.back());
+
+        // --- NAVIGATOR VIEW (THREE.JS) ---
+        let scene, camera, renderer, stars, planets = [];
+        
+        function initThreeJS() {
+            const canvas = $('#bg-canvas');
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Starfield
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            const starGeometry = new THREE.BufferGeometry();
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const starMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+            stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+
+            // Planets
+            const planetPositions = [
+                new THREE.Vector3(0, 0, -20),   // All
+                new THREE.Vector3(-30, 5, -40),  // Sci-Fi
+                new THREE.Vector3(35, -10, -50), // Horror
+                new THREE.Vector3(-25, 15, -60), // Action
+                new THREE.Vector3(20, -5, -70),  // Adventure
+            ];
+            const planetScales = [10, 6, 5, 7, 6.5];
+
+            genres.forEach((genre, i) => {
+                const geometry = new THREE.SphereGeometry(planetScales[i], 32, 32);
+                const material = new THREE.MeshBasicMaterial({ color: genre.color });
+                const planet = new THREE.Mesh(geometry, material);
+                planet.position.copy(planetPositions[i]);
+                planet.userData = { ...genre, index: i };
+                planets.push(planet);
+                scene.add(planet);
+            });
+
+            camera.position.z = 5;
+            animate();
+            focusPlanet(0, true);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0001;
+            planets.forEach(p => {
+                p.rotation.y += 0.001;
+                p.rotation.x += 0.0005;
+            });
+            renderer.render(scene, camera);
+        }
+
+        function focusPlanet(index, instant = false) {
+            currentPlanetIndex = index;
+            const targetPlanet = planets[index];
+            const targetPosition = new THREE.Vector3();
+            targetPlanet.getWorldPosition(targetPosition);
+            
+            const offset = new THREE.Vector3(0, 0, targetPlanet.geometry.parameters.radius * 2.5);
+            targetPosition.add(offset);
+
+            if (instant) {
+                camera.position.copy(targetPosition);
+                camera.lookAt(planets[index].position);
+            } else {
+                // Simple lerp for smooth transition
+                const startPosition = camera.position.clone();
+                const startQuaternion = camera.quaternion.clone();
+                
+                const tempCamera = camera.clone();
+                tempCamera.position.copy(targetPosition);
+                tempCamera.lookAt(planets[index].position);
+                const endQuaternion = tempCamera.quaternion;
+
+                let t = 0;
+                const duration = 1000;
+                const startTime = Date.now();
+
+                function transition() {
+                    const now = Date.now();
+                    t = Math.min(1, (now - startTime) / duration);
+                    camera.position.lerpVectors(startPosition, targetPosition, t);
+                    THREE.Quaternion.slerp(startQuaternion, endQuaternion, camera.quaternion, t);
+                    if (t < 1) requestAnimationFrame(transition);
+                }
+                transition();
+            }
+            updatePlanetInfo(index);
+        }
+
+        function updatePlanetInfo(index) {
+            const planetData = genres[index];
+            const lang = currentLanguage;
+            const t = translations[lang];
+            const keyMap = {
+                'All Movies': 'all_movies', 'Sci-Fi': 'sci_fi', 'Horror': 'horror', 'Action': 'action', 'Adventure': 'adventure'
+            };
+            const descKeyMap = {
+                'All Movies': 'explore_collection', 'Sci-Fi': 'journey_worlds', 'Horror': 'spine_chilling', 'Action': 'adrenaline_pumping', 'Adventure': 'epic_quests'
+            };
+            
+            $('#planet-name').textContent = t[keyMap[planetData.name]];
+            $('#planet-desc').textContent = t[descKeyMap[planetData.name]];
+            $('#watch-now-btn').textContent = t.watch_now;
+            $('#info-panel').style.setProperty('--glow-color', `#${new THREE.Color(planetData.color).getHexString()}`);
+        }
+
+        $('#prev-planet').addEventListener('click', () => {
+            const newIndex = (currentPlanetIndex - 1 + planets.length) % planets.length;
+            focusPlanet(newIndex);
+        });
+        $('#next-planet').addEventListener('click', () => {
+            const newIndex = (currentPlanetIndex + 1) % planets.length;
+            focusPlanet(newIndex);
+        });
+        $('#watch-now-btn').addEventListener('click', () => {
+            const genre = genres[currentPlanetIndex].name;
+            renderGridView(genre === 'All Movies' ? 'All' : genre);
+            showView('grid');
+        });
+
+        // --- GRID VIEW ---
+        function renderGridView(filter = 'All', searchTerm = '') {
+            const grid = $('#movie-grid');
+            grid.innerHTML = ''; // Clear previous content
+
+            // Show skeleton loaders
+            for (let i = 0; i < 10; i++) {
+                grid.innerHTML += `
+                    <div class="skeleton-card aspect-[2/3] rounded-lg"></div>
+                `;
+            }
+
+            setTimeout(() => {
+                grid.innerHTML = ''; // Clear skeletons
+                let filteredMovies = movies;
+
+                if (filter !== 'All') {
+                    filteredMovies = filteredMovies.filter(m => m.genre === filter);
+                }
+                if (searchTerm) {
+                    filteredMovies = filteredMovies.filter(m => m.title.toLowerCase().includes(searchTerm.toLowerCase()));
+                }
+
+                filteredMovies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'group cursor-pointer transform hover:-translate-y-2 transition-transform duration-300';
+                    card.innerHTML = `
+                        <div class="relative aspect-[2/3] rounded-lg overflow-hidden">
+                            <img src="${movie.poster}" alt="${movie.title}" class="w-full h-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x600/0c0a18/ffd700?text=Image+Error';">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-300"></div>
+                            <div class="absolute inset-0 ring-1 ring-inset ring-transparent group-hover:ring-gold-400 transition-all duration-300 rounded-lg" style="--tw-ring-color: #ffd700;"></div>
+                        </div>
+                        <div class="mt-2">
+                            <h3 class="font-bold truncate">${movie.title}</h3>
+                            <p class="text-sm text-gray-400">${movie.genre}</p>
+                        </div>
+                    `;
+                    card.addEventListener('click', () => {
+                        if (currentView !== 'player') {
+                            playerHistoryStack = [];
+                        }
+                        playerHistoryStack.push(movie.id);
+                        renderPlayerView(movie.id);
+                        showView('player', { movieId: movie.id });
+                    });
+                    grid.appendChild(card);
+                });
+            }, 500); // Simulate loading
+        }
+        
+        function populateCategoryFilters() {
+            const t = translations[currentLanguage];
+            const keyMap = {
+                'All Movies': 'all_movies', 'Sci-Fi': 'sci_fi', 'Horror': 'horror', 'Action': 'action', 'Adventure': 'adventure'
+            };
+            const optionsHtml = genres.map(g => `<option value="${g.name === 'All Movies' ? 'All' : g.name}">${t[keyMap[g.name]]}</option>`).join('');
+            $('#category-select-desktop').innerHTML = optionsHtml;
+            $('#category-select-mobile').innerHTML = optionsHtml;
+        }
+
+        $('#category-select-desktop').addEventListener('change', (e) => renderGridView(e.target.value));
+        $('#category-select-mobile').addEventListener('change', (e) => {
+            renderGridView(e.target.value);
+            e.target.classList.add('hidden');
+        });
+        $('#categories-nav-btn').addEventListener('click', () => {
+            $('#category-select-mobile').classList.toggle('hidden');
+        });
+        $('#grid-nav-btn').addEventListener('click', () => {
+            renderGridView('All');
+            showView('grid');
+        });
+
+
+        // --- PLAYER VIEW ---
+        function renderPlayerView(movieId) {
+            const movie = movies.find(m => m.id === movieId);
+            if (!movie) return;
+
+            // Show loader, hide iframe
+            $('#video-loader').classList.remove('hidden');
+            const player = $('#youtube-player');
+            player.src = '';
+            
+            setTimeout(() => {
+                player.src = `https://www.youtube.com/embed/${movie.trailerId}?autoplay=1&modestbranding=1&rel=0`;
+                player.onload = () => $('#video-loader').classList.add('hidden');
+            }, 300);
+
+            $('#movie-title').textContent = movie.title;
+            $('#movie-year').textContent = movie.year;
+            $('#movie-genre').textContent = movie.genre;
+            
+            const descEl = $('#movie-description');
+            const readMoreBtn = $('#read-more-btn');
+            const t = translations[currentLanguage];
+            
+            descEl.textContent = movie.description;
+            if (movie.description.length > 150) {
+                descEl.classList.add('line-clamp-2');
+                readMoreBtn.textContent = t.read_more;
+                readMoreBtn.classList.remove('hidden');
+                readMoreBtn.onclick = () => {
+                    descEl.classList.toggle('line-clamp-2');
+                    readMoreBtn.textContent = descEl.classList.contains('line-clamp-2') ? t.read_more : t.read_less;
+                };
+            } else {
+                readMoreBtn.classList.add('hidden');
+            }
+
+            // Render recommendations
+            const recommendations = movies.filter(m => m.id !== movieId && m.genre === movie.genre).slice(0, 5);
+            const recList = $('#recommendations-list');
+            recList.innerHTML = '';
+            recommendations.forEach(rec => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-3 cursor-pointer group';
+                item.innerHTML = `
+                    <img src="${rec.poster}" class="w-20 aspect-video object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/160x90/0c0a18/ffd700?text=Error';">
+                    <div class="flex-1">
+                        <h4 class="font-semibold group-hover:text-gold-400 transition-colors">${rec.title}</h4>
+                        <p class="text-sm text-gray-400">${rec.genre}</p>
+                    </div>
+                `;
+                item.addEventListener('click', () => {
+                    playerHistoryStack.push(rec.id);
+                    renderPlayerView(rec.id);
+                    // Manually push state because we are staying in the same view
+                    history.pushState({ view: 'player', movieId: rec.id }, '', `#player/${rec.id}`);
+                });
+                recList.appendChild(item);
+            });
+
+            // Reset chat
+            $('#chat-history').innerHTML = '';
+            $('#chat-form').dataset.movieId = movieId;
+        }
+
+        // --- AI CHAT ---
+        $('#chat-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = $('#chat-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const movieId = e.target.dataset.movieId;
+            const movie = movies.find(m => m.id == movieId);
+            
+            appendChatMessage(question, 'user');
+            input.value = '';
+            
+            // Simulate AI response
+            appendChatMessage('', 'ai-typing');
+            setTimeout(() => {
+                const aiResponse = generateAiResponse(question, movie);
+                updateLastChatMessage(aiResponse);
+            }, 1500);
+        });
+
+        function appendChatMessage(content, sender) {
+            const chatHistory = $('#chat-history');
+            const messageEl = document.createElement('div');
+            messageEl.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'}`;
+            
+            if (sender === 'ai-typing') {
+                messageEl.innerHTML = `
+                    <div class="bg-gray-700 p-3 rounded-lg max-w-xs typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                `;
+            } else {
+                const textClass = sender === 'user' ? 'bg-gold-600 text-white' : 'bg-gray-700';
+                messageEl.innerHTML = `<div class="${textClass} p-3 rounded-lg max-w-xs">${content}</div>`;
+            }
+            chatHistory.appendChild(messageEl);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+        
+        function updateLastChatMessage(content) {
+            const chatHistory = $('#chat-history');
+            const lastMessage = chatHistory.lastElementChild;
+            if (lastMessage) {
+                lastMessage.innerHTML = `<div class="bg-gray-700 p-3 rounded-lg max-w-xs">${marked.parse(content)}</div>`;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        }
+
+        function generateAiResponse(question, movie) {
+            const q = question.toLowerCase();
+            if (q.includes('plot') || q.includes('about')) {
+                return `**${movie.title}** is about: ${movie.description}`;
+            }
+            if (q.includes('year') || q.includes('release')) {
+                return `It was released in **${movie.year}**.`;
+            }
+            if (q.includes('genre')) {
+                return `The genre is **${movie.genre}**.`;
+            }
+            return "I can answer questions about the movie's plot, release year, or genre. How can I help?";
+        }
+
+
+        // --- SEARCH ---
+        $('#search-icon').addEventListener('click', () => {
+            isSearchActive = true;
+            $('#header-content').classList.add('opacity-0', 'pointer-events-none');
+            $('#search-bar').classList.remove('hidden');
+            setTimeout(() => $('#search-input').focus(), 100);
+            if (currentView !== 'grid') {
+                renderGridView();
+                showView('grid');
+            }
+        });
+
+        $('#close-search').addEventListener('click', () => {
+            isSearchActive = false;
+            $('#header-content').classList.remove('opacity-0', 'pointer-events-none');
+            $('#search-bar').classList.add('hidden');
+            $('#search-input').value = '';
+            renderGridView();
+        });
+
+        $('#search-input').addEventListener('input', (e) => {
+            renderGridView('All', e.target.value);
+        });
+
+        // --- HEADER SCROLL BEHAVIOR ---
+        let lastScrollY = window.scrollY;
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('header-bg');
+            } else {
+                header.classList.remove('header-bg');
+            }
+
+            if (lastScrollY < window.scrollY && window.scrollY > 100) {
+                header.style.transform = 'translateY(-100%)';
+            } else {
+                header.style.transform = 'translateY(0)';
+            }
+            lastScrollY = window.scrollY;
+        });
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+            initThreeJS();
+            setLanguage(currentLanguage);
+
+            // Handle initial URL
+            const hash = window.location.hash;
+            if (hash.startsWith('#player/')) {
+                const movieId = parseInt(hash.split('/')[1]);
+                if (movieId) {
+                    playerHistoryStack.push(movieId);
+                    renderPlayerView(movieId);
+                    showView('player', { movieId });
+                }
+            } else if (hash === '#grid') {
+                renderGridView();
+                showView('grid');
+            } else {
+                showView('navigator');
+                history.replaceState({ view: 'navigator' }, '', '#navigator');
+            }
+        });
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        $('#lang-switcher').addEventListener('click', () => {
+            setLanguage(currentLanguage === 'en' ? 'my' : 'en');
+        });
+
+    </script>
+</body>
+</html>

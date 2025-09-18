@@ -1,0 +1,69 @@
+{
+  "posts": [
+    {
+      "image": "paris.png",
+      "isLarge": true,
+      "en": {
+        "title": "An Evening in Paris",
+        "description": "Lost in the city of lights, where every corner holds a new story."
+      },
+      "my": {
+        "title": "ပဲရစ်မြို့ရဲ့ ညနေခင်း",
+        "description": "လမ်းသွယ်တိုင်းမှာ ဇာတ်လမ်းအသစ်တွေရှိနေတဲ့ အလင်းရောင်မြို့တော်ထဲမှာ။"
+      },
+      "tags": ["Europe", "City"]
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      "isLarge": false,
+      "en": {
+        "title": "Tokyo's Neon Dreams",
+        "description": "The vibrant pulse of Shibuya Crossing."
+      },
+      "my": {
+        "title": "တိုကျိုမြို့၏ နီယွန်အိပ်မက်များ",
+        "description": "ရှီဘူယားလမ်းဆုံ၏ တက်ကြွသော ခုန်နှုန်း။"
+      },
+      "tags": ["Asia", "City"]
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      "isLarge": false,
+      "en": {
+        "title": "Golden Sands of Dubai",
+        "description": "Where the desert meets the future."
+      },
+      "my": {
+        "title": "ဒူဘိုင်း၏ ရွှေသဲသောင်ပြင်များ",
+        "description": "သဲကန္တာရနှင့် အနာဂတ်တို့ ဆုံတွေ့ရာ။"
+      },
+      "tags": ["Asia", "Desert"]
+    },
+    {
+      "image": "https://images.unsplash.com/photo-1506973035872-a4ec16b8e8d9?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80",
+      "isLarge": false,
+      "en": {
+        "title": "Amalfi Coast Blues",
+        "description": "The serene beauty of the Italian coastline."
+      },
+      "my": {
+        "title": "အမာလ်ဖီကမ်းခြေ၏ အပြာရောင်များ",
+        "description": "အီတလီကမ်းရိုးတန်း၏ ငြိမ်သက်သောအလှ။"
+      },
+      "tags": ["Europe", "Coastline"]
+    },
+    {
+      "image": "bagan.png",
+      "isLarge": true,
+      "en": {
+        "title": "Ancient Wonders of Bagan",
+        "description": "Sunrise over a thousand temples."
+      },
+      "my": {
+        "title": "ပုဂံ၏ ရှေးဟောင်းအံ့ဖွယ်များ",
+        "description": "ဘုရားတစ်ထောင်အပေါ် နေထွက်ချိန်။"
+      },
+      "tags": ["Asia", "Culture"]
+    }
+  ]
+}

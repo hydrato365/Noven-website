@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chromatic Trails - A Travel Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Padauk:wght@400;700&family=Playfair+Display:wght@700&family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        body.lang-en-active { font-family: 'Poppins', sans-serif; }
+        body.lang-my-active { font-family: 'Padauk', sans-serif; }
+        
+        :root {
+            --glass-bg: rgba(10, 10, 14, 0.5);
+            --border-color: rgba(255, 255, 255, 0.07);
+            --primary-glow: #06b6d4;
+        }
+        .glass-card { 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px); 
+            border: 1px solid var(--border-color); 
+            border-radius: 1rem; 
+        }
+        #loading-overlay {
+            position: fixed; inset: 0; background-color: #050509; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #flight-path {
+            stroke-dasharray: 1000; stroke-dashoffset: 1000;
+            animation: draw-path 2s ease-in-out forwards;
+        }
+        @keyframes draw-path { to { stroke-dashoffset: 0; } }
+        
+        .filter-btn {
+            background-color: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+        }
+        .filter-btn:hover { background-color: rgba(255, 255, 255, 0.1); }
+        .filter-btn:focus-visible { outline: 2px solid var(--primary-glow); outline-offset: 2px; }
+        .filter-btn.active {
+            background-color: var(--primary-glow); color: #050509;
+            font-weight: bold; border-color: var(--primary-glow);
+        }
+
+        main.container { perspective: 1500px; }
+        #posts-container {
+            transform-style: preserve-3d;
+            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .post-card.filtered-out {
+            transform: scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* --- Search Input Styles --- */
+        #search-input {
+            font-family: 'Poppins', sans-serif;
+        }
+        #search-input::-webkit-search-cancel-button {
+            -webkit-appearance: none;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-300">
+
+    <div id="loading-overlay">
+        <svg class="w-48 h-48" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <path id="flight-path" d="M 20,100 Q 80,20 100,100 T 180,100" stroke="#4B5563" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <g fill="#D1D5DB">
+                <path d="M2 21l20-9L2 3v7l11 2L2 19v2z" transform="scale(1.5) translate(-12, -12)">
+                    <animateMotion dur="2s" fill="freeze" repeatCount="1" rotate="auto">
+                        <mpath xlink:href="#flight-path" />
+                    </animateMotion>
+                </path>
+            </g>
+        </svg>
+    </div>
+
+    <header class="bg-black/80 backdrop-blur-sm sticky top-0 z-50 border-b border-white/10">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="#" class="font-playfair text-2xl md:text-3xl font-bold text-white">Chromatic Trails</a>
+            <div class="flex items-center space-x-4">
+                <!-- ===== START: ပြင်ဆင်ထားသော အပိုင်း ===== -->
+                <a href="index.html?modal=case-study-blog#portfolio" class="flex items-center text-gray-300 hover:text-cyan-400 font-semibold text-sm whitespace-nowrap transition-colors duration-200">
+                <!-- ===== END: ပြင်ဆင်ထားသော အပိုင်း ===== -->
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span class="lang-en">Back to Portfolio</span>
+                    <span class="lang-my hidden">Portfolio သို့ ပြန်သွားရန်</span>
+                </a>
+                <div class="h-6 w-px bg-gray-700"></div>
+                <button class="lang-switcher text-gray-300 hover:text-white text-2xl transition-transform duration-200 hover:scale-110">
+                    <span class="lang-en">🇲🇲</span>
+                    <span class="lang-my hidden">🇺🇸</span>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto p-6 my-12">
+        <div class="mb-10 md:mb-12 max-w-lg mx-auto">
+            <div class="relative">
+                <input type="search" id="search-input" placeholder="Search stories..." class="w-full bg-gray-900/50 border border-white/10 rounded-full py-3 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition-all duration-300">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div id="filter-container" class="flex justify-center flex-wrap gap-2 md:gap-3 mb-10 md:mb-12"></div>
+        <div id="posts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 opacity-0"></div>
+    </main>
+
+    <footer class="border-t border-white/10">
+        <div class="container mx-auto py-10 px-6 text-center text-gray-500">
+            <p class="font-playfair text-lg mb-2">Chromatic Trails</p>
+            <div class="text-sm">
+                <span class="lang-en">© <span class="year-span"></span>. A conceptual project by Noven.</span>
+                <span class="lang-my hidden">© <span class="year-span"></span>. Noven ၏ conceptual project တစ်ခုဖြစ်သည်။</span>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // DOM Elements
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const postsContainer = document.getElementById('posts-container');
+        const filterContainer = document.getElementById('filter-container');
+        const mainContainer = document.querySelector('main.container');
+        const body = document.body;
+        // ===== START: ပြင်ဆင်ထားသော အပိုင်း (Language Key) =====
+        const langKey = 'wemarz_lang';
+        // ===== END: ပြင်ဆင်ထားသော အပိုင်း =====
+
+        // State variables
+        let allPostsData = [];
+        let postCards = [];
+        let searchInput;
+
+        // --- Core Logic for Visibility ---
+        function updatePostVisibility() {
+            if (!filterContainer.querySelector('.active')) return;
+
+            const activeFilter = filterContainer.querySelector('.active').dataset.filter;
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const currentLang = localStorage.getItem(langKey) || 'en';
+            const langClass = `.lang-${currentLang}`;
+
+            postCards.forEach(card => {
+                const cardTags = card.dataset.tags.split(' ');
+                const matchesFilter = (activeFilter === 'All' || cardTags.includes(activeFilter));
+
+                const titleElement = card.querySelector(`${langClass} h2`);
+                const descriptionElement = card.querySelector(`${langClass} p`);
+                const titleText = titleElement ? titleElement.textContent.toLowerCase() : '';
+                const descriptionText = descriptionElement ? descriptionElement.textContent.toLowerCase() : '';
+                const matchesSearch = (titleText.includes(searchTerm) || descriptionText.includes(searchTerm));
+
+                const shouldShow = matchesFilter && matchesSearch;
+                const isFilteredOut = card.classList.contains('filtered-out');
+
+                if (shouldShow && isFilteredOut) {
+                    card.style.display = '';
+                    requestAnimationFrame(() => { card.classList.remove('filtered-out'); });
+                } else if (!shouldShow && !isFilteredOut) {
+                    card.addEventListener('transitionend', () => { card.style.display = 'none'; }, { once: true });
+                    card.classList.add('filtered-out');
+                }
+            });
+        }
+
+        // --- UI Rendering ---
+        function renderPosts(posts) {
+            postsContainer.innerHTML = '';
+            posts.forEach(post => {
+                const aspectRatioClass = post.isLarge ? 'pt-[50%]' : 'pt-[75%]';
+                const tagsString = post.tags.join(' ');
+                
+                const postCardHTML = `
+                    <a href="#" class="post-card glass-card ${post.isLarge ? 'lg:col-span-2' : ''} relative overflow-hidden group transition-all duration-300 ease-in-out hover:!border-cyan-400 hover:-translate-y-2" data-tags="${tagsString}">
+                        <img src="${post.image}" alt="${post.en.title}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transform transition-transform duration-300 group-hover:scale-105" onerror="this.onerror=null;this.src='https://placehold.co/800x600/0a0a0e/ffffff?text=Image+Not+Found';">
+                        <div class="relative w-full h-full ${aspectRatioClass}"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 p-6 md:p-8 text-white">
+                            <div class="lang-en">
+                                <h2 class="font-playfair ${post.isLarge ? 'text-4xl' : 'text-2xl'} font-bold">${post.en.title}</h2>
+                                <p class="mt-1 md:mt-2 opacity-90">${post.en.description}</p>
+                            </div>
+                            <div class="lang-my hidden">
+                                <h2 class="font-playfair ${post.isLarge ? 'text-4xl' : 'text-2xl'} font-bold">${post.my.title}</h2>
+                                <p class="mt-1 md:mt-2 opacity-90">${post.my.description}</p>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                postsContainer.insertAdjacentHTML('beforeend', postCardHTML);
+            });
+            const currentLang = localStorage.getItem(langKey) || 'en';
+            setLanguage(currentLang, false);
+        }
+
+        // --- Initialization and Event Handling ---
+        function initializeFiltersAndSearch() {
+            const allTags = allPostsData.flatMap(post => post.tags);
+            const uniqueTags = ['All', ...new Set(allTags)];
+            filterContainer.innerHTML = uniqueTags.map(tag => `<button class="filter-btn px-4 py-2 rounded-full font-semibold text-sm md:text-base text-gray-300 ${tag === 'All' ? 'active' : ''}" data-filter="${tag}">${tag}</button>`).join('');
+
+            postCards = document.querySelectorAll('.post-card');
+            searchInput = document.getElementById('search-input');
+
+            filterContainer.addEventListener('click', (e) => {
+                const targetButton = e.target.closest('button');
+                if (!targetButton || targetButton.classList.contains('active')) return;
+                filterContainer.querySelector('.active').classList.remove('active');
+                targetButton.classList.add('active');
+                updatePostVisibility();
+            });
+
+            searchInput.addEventListener('input', updatePostVisibility);
+        }
+
+        // Accessibility Updated Function
+        function setLanguage(lang, runFilter = true) {
+            const enElements = document.querySelectorAll('.lang-en');
+            const myElements = document.querySelectorAll('.lang-my');
+            const langSwitchers = document.querySelectorAll('.lang-switcher');
+
+            if (lang === 'my') {
+                enElements.forEach(e => e.classList.add('hidden'));
+                myElements.forEach(e => e.classList.remove('hidden'));
+                body.classList.add('lang-my-active');
+                body.classList.remove('lang-en-active');
+                langSwitchers.forEach(switcher => switcher.setAttribute('aria-label', 'Switch to English language'));
+            } else { // 'en'
+                myElements.forEach(e => e.classList.add('hidden'));
+                enElements.forEach(e => e.classList.remove('hidden'));
+                body.classList.add('lang-en-active');
+                body.classList.remove('lang-my-active');
+                langSwitchers.forEach(switcher => switcher.setAttribute('aria-label', 'Switch to Myanmar language'));
+            }
+            localStorage.setItem(langKey, lang);
+            if (runFilter && typeof updatePostVisibility === 'function') {
+                updatePostVisibility();
+            }
+        }
+        
+        document.querySelectorAll('.lang-switcher').forEach(b => {
+            b.addEventListener('click', () => {
+                const currentLang = localStorage.getItem(langKey) || 'en';
+                setLanguage(currentLang === 'en' ? 'my' : 'en');
+            });
+        });
+
+        document.querySelectorAll('.year-span').forEach(span => { span.textContent = new Date().getFullYear(); });
+        
+        initialize3DEffect = function() { if (window.matchMedia('(pointer: fine)').matches) { mainContainer.addEventListener('mousemove', (e) => { const r = mainContainer.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, cX = r.width / 2, cY = r.height / 2, dX = (x - cX) / cX, dY = (y - cY) / cY, rY = dX * 8, rX = -dY * 8; postsContainer.style.transform = `rotateX(${rX}deg) rotateY(${rY}deg)`; }); mainContainer.addEventListener('mouseleave', () => { postsContainer.style.transform = 'rotateX(0deg) rotateY(0deg)'; }); } };
+        
+        async function initializePage() {
+            // ===== START: ပြင်ဆင်ထားသော အပိုင်း (Language) =====
+            const savedLanguage = localStorage.getItem(langKey) || 'en';
+            setLanguage(savedLanguage, false);
+            // ===== END: ပြင်ဆင်ထားသော အပိုင်း =====
+
+            try {
+                const response = await fetch('./posts.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                allPostsData = data.posts;
+
+                const animationDelay = new Promise(resolve => setTimeout(resolve, 2000));
+                await animationDelay;
+                
+                renderPosts(allPostsData);
+                initializeFiltersAndSearch();
+                loadingOverlay.classList.add('opacity-0');
+                postsContainer.classList.add('transition-opacity', 'duration-500');
+                postsContainer.classList.remove('opacity-0');
+                initialize3DEffect();
+                setTimeout(() => { loadingOverlay.style.display = 'none'; }, 500);
+            } catch (error) {
+                console.error("Initialization Error:", error);
+                loadingOverlay.style.display = 'none';
+                postsContainer.classList.remove('opacity-0');
+                postsContainer.innerHTML = '<p class="col-span-full text-center text-red-500">Failed to load blog posts. Please try again later.</p>';
+            }
+        }
+
+        initializePage();
+    });
+    </script>
+</body>
+</html>

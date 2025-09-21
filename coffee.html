@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Golden Bean - Poetic Brews</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@400;500&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles & Tailwind Config -->
+    <style>
+        /* Custom Font Family */
+        body {
+            font-family: 'Roboto', 'Padauk', sans-serif;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4, h5, h6, .font-display {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Page transition styles */
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+            animation: pageFadeIn 0.5s ease-in-out;
+        }
+        @keyframes pageFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        /* Active filter button style */
+        .filter-btn.active {
+            background-color: #6F4E37;
+            color: white;
+        }
+        /* Simple Modal for Form Submission */
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+        /* Language switcher active style */
+        .lang-switch-btn.active {
+            color: #6F4E37;
+            font-weight: bold;
+        }
+
+        /* === Loading Animation Styles === */
+        #loader-overlay {
+            transition: opacity 0.75s ease-out;
+        }
+
+        .coffee-cup {
+            width: 80px;
+            height: 90px;
+            border: 6px solid #3B2F2F;
+            border-top: 0;
+            position: relative;
+            border-radius: 0 0 25px 25px;
+            margin-top: 50px;
+        }
+
+        .coffee-cup::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: -25px;
+            width: 20px;
+            height: 40px;
+            border: 6px solid #3B2F2F;
+            border-radius: 0 15px 15px 0;
+        }
+
+        .steam {
+            position: absolute;
+            height: 50px;
+            width: 6px;
+            background: #3B2F2F;
+            border-radius: 3px;
+            left: 50%;
+            transform-origin: bottom;
+            animation: steam-rise 1.5s infinite ease-out;
+        }
+
+        .steam:nth-child(1) {
+            left: 20px;
+            animation-delay: 0s;
+        }
+
+        .steam:nth-child(2) {
+            left: 40px;
+            animation-delay: 0.5s;
+        }
+
+        .steam:nth-child(3) {
+            left: 60px;
+            animation-delay: 1s;
+        }
+
+        @keyframes steam-rise {
+            0% {
+                transform: translateY(0) scaleY(1);
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-60px) scaleY(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Initially hide content to prevent FOUC and show after load */
+        #app-content {
+            opacity: 0;
+            transition: opacity 0.75s ease-in-out;
+        }
+    </style>
+    <script>
+      // Custom Tailwind CSS Configuration
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              'coffee-brown': '#6F4E37',
+              'cream': '#F5F5DC',
+              'dark-roast': '#3B2F2F',
+              'latte': '#FFF1E6',
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-latte text-dark-roast">
+
+    <!-- Loading Overlay -->
+    <div id="loader-overlay" class="fixed inset-0 z-[100] flex justify-center items-center" style="background-color: #FFF1E6;">
+        <div class="coffee-cup">
+            <div class="steam"></div>
+            <div class="steam"></div>
+            <div class="steam"></div>
+        </div>
+    </div>
+
+    <!-- App Content Wrapper -->
+    <div id="app-content">
+        <!-- Header & Navigation -->
+        <header id="main-header" class="bg-cream/80 backdrop-blur-sm sticky top-0 z-50 shadow-md transition-all duration-300">
+            <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+                <!-- Left side of Navbar: Shop Name -->
+                <a href="#" data-page="home" class="nav-link font-display text-2xl md:text-3xl font-bold text-coffee-brown" data-lang-key="shop_name">The Golden Bean</a>
+
+                <!-- Right side of Navbar: Desktop Menu -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#" data-page="home" class="nav-link text-dark-roast hover:text-coffee-brown transition duration-300" data-lang-key="nav_home">ပင်မစာမျက်နှာ</a>
+                    <a href="#" data-page="menu" class="nav-link text-dark-roast hover:text-coffee-brown transition duration-300" data-lang-key="nav_menu">မီနူး</a>
+                    <a href="#" data-page="about" class="nav-link text-dark-roast hover:text-coffee-brown transition duration-300" data-lang-key="nav_about">ကျွန်ုပ်တို့အကြောင်း</a>
+                    <a href="#" data-page="contact" class="nav-link text-dark-roast hover:text-coffee-brown transition duration-300" data-lang-key="nav_contact">ဆက်သွယ်ရန်</a>
+                    <!-- Language Switcher -->
+                    <div class="flex items-center space-x-2 border-l pl-4 border-gray-300">
+                        <button class="lang-switch-btn" data-lang="en">EN</button>
+                        <span>|</span>
+                        <button class="lang-switch-btn" data-lang="my">MM</button>
+                    </div>
+                </div>
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-button" class="md:hidden p-2 rounded-md hover:bg-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+            </nav>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="hidden md:hidden bg-cream border-t border-gray-200">
+                <a href="#" data-page="home" class="nav-link block py-3 px-6 text-sm hover:bg-coffee-brown hover:text-white transition-colors duration-200" data-lang-key="nav_home_mob">ပင်မစာမျက်နှာ</a>
+                <a href="#" data-page="menu" class="nav-link block py-3 px-6 text-sm hover:bg-coffee-brown hover:text-white transition-colors duration-200" data-lang-key="nav_menu_mob">မီနူး</a>
+                <a href="#" data-page="about" class="nav-link block py-3 px-6 text-sm hover:bg-coffee-brown hover:text-white transition-colors duration-200" data-lang-key="nav_about_mob">ကျွန်ုပ်တို့အကြောင်း</a>
+                <a href="#" data-page="contact" class="nav-link block py-3 px-6 text-sm hover:bg-coffee-brown hover:text-white transition-colors duration-200" data-lang-key="nav_contact_mob">ဆက်သွယ်ရန်</a>
+                 <!-- Mobile Language Switcher -->
+                <div class="flex justify-center items-center space-x-4 py-3 border-t border-gray-200">
+                    <button class="lang-switch-btn text-sm" data-lang="en">English</button>
+                    <span class="text-gray-400">|</span>
+                    <button class="lang-switch-btn text-sm" data-lang="my">မြန်မာ</button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- Home Page -->
+            <div id="home" class="page active">
+                <section class="relative h-[60vh] md:h-[90vh] bg-cover bg-center bg-fixed" style="background-image: url('https://images.unsplash.com/photo-1559925393-8be0ec4767c8?q=80&w=2070&auto=format&fit=crop');">
+                    <div class="absolute inset-0 bg-gradient-to-t from-dark-roast/60 to-black/30"></div>
+                    <div class="relative z-10 flex flex-col items-center justify-center h-full text-center text-white px-4">
+                        <h1 class="text-4xl md:text-6xl lg:text-7xl font-display mb-4 drop-shadow-lg" data-lang-key="hero_title">ကဗျာတစ်ပုဒ်လို ကော်ဖီ</h1>
+                        <p class="text-lg md:text-xl max-w-2xl mb-8 drop-shadow-md" data-lang-key="hero_subtitle">အရသာတိုင်းမှာ ပုံပြင်တစ်ပုဒ် ရှိတယ်။</p>
+                        <a href="#" data-page="menu" class="nav-link bg-coffee-brown text-white py-3 px-8 rounded-full font-semibold hover:bg-opacity-80 transform hover:scale-105 transition duration-300 shadow-lg" data-lang-key="hero_button">ကျွန်ုပ်တို့၏ ဖန်တီးမှုများကို ကြည့်ရန်</a>
+                    </div>
+                </section>
+                <section class="py-16 md:py-24 bg-latte text-center">
+                     <h2 class="text-3xl md:text-4xl font-display text-coffee-brown" data-lang-key="featured_title">လူကြိုက်အများဆုံး</h2>
+                     <p class="mt-2 text-lg text-gray-600 mb-12" data-lang-key="featured_subtitle">ကျွန်ုပ်တို့၏ အကောင်းဆုံး လက်ရာများကို မြည်းစမ်းကြည့်ပါ။</p>
+                     <div class="container mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+                         <!-- Featured items are now clickable links -->
+                         <a href="#" class="nav-link block bg-cream rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300" data-page="menu" data-filter="coffee">
+                             <img src="https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1937&auto=format&fit=crop" alt="The Sonnet Mocha" class="w-full h-56 object-cover">
+                             <div class="p-6">
+                                 <h3 class="text-xl font-display mb-2" data-lang-key="featured_item1">The Sonnet Mocha</h3>
+                             </div>
+                         </a>
+                         <a href="#" class="nav-link block bg-cream rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300" data-page="menu" data-filter="pastry">
+                             <img src="lemon1.png" alt="Almond Croissant" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/FFF1E6/3B2F2F?text=Image+Not+Found';">
+                             <div class="p-6">
+                                 <h3 class="text-xl font-display mb-2" data-lang-key="featured_item2">Almond Croissant</h3>
+                             </div>
+                         </a>
+                         <a href="#" class="nav-link block bg-cream rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300" data-page="menu" data-filter="tea">
+                             <img src="https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=1964&auto=format&fit=crop" alt="Poet's Pearl Milk Tea" class="w-full h-56 object-cover">
+                             <div class="p-6">
+                                 <h3 class="text-xl font-display mb-2" data-lang-key="featured_item3">Poet's Pearl Milk Tea</h3>
+                             </div>
+                         </a>
+                     </div>
+                </section>
+            </div>
+
+            <!-- Menu Page -->
+            <div id="menu" class="page">
+                <section class="py-16 md:py-24 bg-latte">
+                    <div class="container mx-auto px-6">
+                        <div class="text-center mb-12">
+                            <h2 class="text-4xl md:text-5xl font-display text-coffee-brown" data-lang-key="menu_title">ကျွန်ုပ်တို့၏ Menu</h2>
+                            <p class="mt-2 text-lg text-gray-600" data-lang-key="menu_subtitle">အကောင်းမွန်ဆုံးသော ကော်ဖီ၊ လက်ဖက်ရည်နှင့် မုန့်မျိုးစုံ။</p>
+                        </div>
+                        <!-- Filter Buttons -->
+                        <div id="filter-container" class="flex justify-center flex-wrap gap-2 md:space-x-4 mb-12">
+                            <button class="filter-btn active py-2 px-4 rounded-full border border-coffee-brown transition" data-category="all" data-lang-key="filter_all">အားလုံး</button>
+                            <button class="filter-btn py-2 px-4 rounded-full border border-coffee-brown transition" data-category="coffee" data-lang-key="filter_coffee">ကော်ဖီ</button>
+                            <button class="filter-btn py-2 px-4 rounded-full border border-coffee-brown transition" data-category="tea" data-lang-key="filter_tea">လက်ဖက်ရည်</button>
+                            <button class="filter-btn py-2 px-4 rounded-full border border-coffee-brown transition" data-category="pastry" data-lang-key="filter_pastry">မုန့်</button>
+                        </div>
+                        <!-- Menu Grid -->
+                        <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                            <!-- Menu items will be dynamically inserted here by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- About Page -->
+            <div id="about" class="page">
+                 <section class="py-16 md:py-24 bg-white">
+                    <div class="container mx-auto px-6 max-w-4xl">
+                        <div class="text-center mb-16">
+                             <h2 class="text-4xl md:text-5xl font-display text-coffee-brown" data-lang-key="about_title">ကျွန်ုပ်တို့၏ ဇာတ်လမ်း</h2>
+                             <p class="mt-2 text-lg text-gray-600" data-lang-key="about_subtitle">ကော်ဖီတစ်ခွက်ထက်ပိုသော တိတ်ဆိတ်ငြိမ်သက်ရာလေးတစ်ခု</p>
+                        </div>
+                        <div class="flex flex-col md:flex-row items-center gap-12 mb-16">
+                            <div class="md:w-1/2">
+                                <img src="https://images.unsplash.com/photo-1552573164-c48839845d3b?q=80&w=1974&auto=format&fit=crop" class="rounded-lg shadow-xl" alt="Barista preparing coffee">
+                            </div>
+                            <div class="md:w-1/2">
+                                 <h3 class="text-2xl font-display text-coffee-brown mb-4" data-lang-key="about_section1_title">အစပြုခြင်း</h3>
+                                 <p class="text-gray-700 leading-relaxed" data-lang-key="about_section1_text">The Golden Bean ကို ကော်ဖီအပေါ်ရူးသွပ်သူများက တည်ထောင်ခဲ့ပါသည်။ ကျွန်ုပ်တို့သည် ကမ္ဘာတစ်ဝှမ်းမှ အကောင်းဆုံးကော်ဖီစေ့များကို ရွေးချယ်ပြီး သင့်အတွက် အကောင်းဆုံးအရသာကို ဖန်တီးပေးပါသည်။ မြို့ပြရဲ့ဆူညံမှုတွေကနေ ခဏတာလွတ်မြောက်ပြီး၊ သင်အကြိုက်ဆုံးကဗျာတစ်ပုဒ်လို ခံစားရမယ့် နေရာလေးတစ်ခုဆီသို့ လှမ်းခဲ့ပါ။</p>
+                            </div>
+                        </div>
+                         <div class="flex flex-col md:flex-row-reverse items-center gap-12">
+                            <div class="md:w-1/2">
+                                <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1974&auto=format&fit=crop" class="rounded-lg shadow-xl" alt="Coffee beans">
+                            </div>
+                            <div class="md:w-1/2">
+                                 <h3 class="text-2xl font-display text-coffee-brown mb-4" data-lang-key="about_section2_title">ကျွန်ုပ်တို့၏ ကော်ဖီ</h3>
+                                 <p class="text-gray-700 leading-relaxed" data-lang-key="about_section2_text">ကော်ဖီစေ့တိုင်းကို ဂရုတစိုက်ရွေးချယ်ပြီး အပူချိန်အတိအကျနဲ့ လှော်ထားပါတယ်။ ဒါမှ ကော်ဖီစေ့ရဲ့ မူလရနံ့နဲ့ အရသာကို အပြည့်အဝရရှိမှာပါ။ ကျွန်ုပ်တို့ရဲ့ Barista တွေကလည်း ကော်ဖီတစ်ခွက်ချင်းစီကို စေတနာအပြည့်နဲ့ ဖျော်စပ်ပေးနေပါတယ်။</p>
+                            </div>
+                        </div>
+                    </div>
+                 </section>
+            </div>
+
+            <!-- Contact Page -->
+            <div id="contact" class="page">
+                <section class="py-16 md:py-24 bg-latte">
+                    <div class="container mx-auto px-6">
+                        <div class="text-center mb-12">
+                            <h2 class="text-4xl md:text-5xl font-display text-coffee-brown" data-lang-key="contact_title">ကျွန်ုပ်တို့ထံ ဆက်သွယ်ရန်</h2>
+                            <p class="mt-2 text-lg text-gray-600" data-lang-key="contact_subtitle">သင့်ရဲ့ အသံကို ကြားချင်ပါတယ်။</p>
+                        </div>
+                        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-12">
+                            <!-- Contact Form -->
+                            <div class="bg-cream p-8 rounded-lg shadow-lg">
+                                <h3 class="text-2xl font-display mb-6" data-lang-key="form_title">Message ပို့ရန်</h3>
+                                <form id="contact-form">
+                                    <div class="mb-4">
+                                        <label for="name" class="block text-gray-700 mb-2" data-lang-key="form_name">အမည်</label>
+                                        <input type="text" id="name" name="name" class="w-full p-3 border rounded-lg" required>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="email" class="block text-gray-700 mb-2" data-lang-key="form_email">Email</label>
+                                        <input type="email" id="email" name="email" class="w-full p-3 border rounded-lg" required>
+                                    </div>
+                                    <div class="mb-6">
+                                        <label for="message" class="block text-gray-700 mb-2" data-lang-key="form_message">Message</label>
+                                        <textarea id="message" name="message" rows="5" class="w-full p-3 border rounded-lg" required></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-coffee-brown text-white py-3 rounded-lg font-semibold hover:bg-opacity-80 transition" data-lang-key="form_button">Send Message</button>
+                                </form>
+                            </div>
+                            <!-- Map and Info -->
+                            <div>
+                                 <div class="mb-8">
+                                     <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3819.480195551368!2d96.1588106153051!3d16.80249498843157!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x30c1eb64138a0963%3A0x4010e7663065960!2sSule%20Pagoda!5e0!3m2!1sen!2smm!4v1660000000000!5m2!1sen!2smm" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="rounded-lg shadow-lg"></iframe>
+                                 </div>
+                                <div class="bg-cream p-8 rounded-lg shadow-lg">
+                                     <h3 class="text-2xl font-display mb-4" data-lang-key="info_title">ဆိုင်လိပ်စာ</h3>
+                                     <p class="text-lg mb-2" data-lang-key="info_address">အမှတ် (၁၂၃)၊ ကဗျာလမ်း၊ ကျောက်တံတားမြို့နယ်၊ ရန်ကုန်။</p>
+                                     <p class="text-lg" data-lang-key="info_email"><strong>Email:</strong> contact@thegoldenbean.com</p>
+                                     <p class="text-lg" data-lang-key="info_phone"><strong>Phone:</strong> +959 123 456 789</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-dark-roast text-cream py-10">
+            <div class="container mx-auto px-6 text-center">
+                <p data-lang-key="footer_copyright">&copy; 2025 The Golden Bean. All Rights Reserved.</p>
+                <p class="text-sm mt-2 text-gray-400" data-lang-key="footer_credit">Designed for a portfolio by a passionate developer.</p>
+            </div>
+        </footer>
+        
+        <!-- ===== START: ပြင်ဆင်ထားသော အပိုင်း ===== -->
+        <a href="index.html?modal=case-study-coffee#portfolio" id="portfolio-back-button" class="fixed bottom-5 left-5 bg-coffee-brown/80 text-white p-3 rounded-full shadow-lg hover:bg-coffee-brown transition-all duration-300 z-50" title="Back to Portfolio">
+        <!-- ===== END: ပြင်ဆင်ထားသော အပိုင်း ===== -->
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        </a>
+    </div>
+
+    <!-- Modal for form submission -->
+    <div id="success-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3 class="text-2xl font-display text-green-600 mb-4" data-lang-key="modal_success_title">အောင်မြင်ပါသည်!</h3>
+            <p class="text-gray-700 mb-6" data-lang-key="modal_success_text">သင်၏ message ကို လက်ခံရရှိပါသည်။</p>
+            <button id="close-modal-btn" class="bg-coffee-brown text-white py-2 px-6 rounded-lg" data-lang-key="modal_close_btn">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // --- Page Load Handler ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader-overlay');
+            const appContent = document.getElementById('app-content');
+
+            if (loader) {
+                // Fade out the loader
+                loader.style.opacity = '0';
+                
+                // Fade in the main content
+                if (appContent) {
+                    appContent.style.opacity = '1';
+                }
+
+                // Remove the loader from the DOM after the transition ends
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 750); // This duration should match the CSS transition duration
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONFIGURATION ---
+            const USD_TO_MMK_RATE = 4500;
+            // ===== START: ပြင်ဆင်ထားသော အပိုင်း (Language) =====
+            const langKey = 'wemarz_lang';
+            let currentLang = localStorage.getItem(langKey) || 'my'; // Read from localStorage
+            // ===== END: ပြင်ဆင်ထားသော အပိုင်း =====
+            const scrollPositions = {}; 
+
+            // --- TRANSLATION DATA ---
+            const translations = {
+                en: {
+                    shop_name: "The Golden Bean",
+                    nav_home: "Home", nav_menu: "Menu", nav_about: "About Us", nav_contact: "Contact",
+                    nav_home_mob: "Home", nav_menu_mob: "Menu", nav_about_mob: "About Us", nav_contact_mob: "Contact",
+                    hero_title: "Coffee as Poetry",
+                    hero_subtitle: "Every sip tells a story.",
+                    hero_button: "Explore Our Creations",
+                    featured_title: "Fan Favorites",
+                    featured_subtitle: "A taste of our finest creations.",
+                    featured_item1: "The Sonnet Mocha", featured_item2: "Almond Croissant", featured_item3: "Poet's Pearl Milk Tea",
+                    menu_title: "Our Menu",
+                    menu_subtitle: "A curated selection of coffee, tea, and pastries.",
+                    filter_all: "All", filter_coffee: "Coffee", filter_tea: "Tea", filter_pastry: "Pastry",
+                    about_title: "Our Story",
+                    about_subtitle: "More than a coffee shop, it's a sanctuary.",
+                    about_section1_title: "The Beginning",
+                    about_section1_text: "The Golden Bean was founded by a group of coffee enthusiasts. We source the finest beans from around the world to craft the perfect cup for you. It's a place to escape the city's hustle and find a moment of peace, like your favorite poem.",
+                    about_section2_title: "Our Coffee",
+                    about_section2_text: "Each bean is carefully selected and roasted to perfection, preserving its unique aroma and flavor. Our baristas are passionate artists, pouring their hearts into every cup they prepare.",
+                    contact_title: "Get In Touch",
+                    contact_subtitle: "We'd love to hear from you.",
+                    form_title: "Send Us A Message",
+                    form_name: "Name", form_email: "Email", form_message: "Message", form_button: "Send Message",
+                    info_title: "Visit Us",
+                    info_address: "No. 123, Poetry Lane, Kyauktada Township, Yangon.",
+                    info_email: "<strong>Email:</strong> contact@thegoldenbean.com",
+                    info_phone: "<strong>Phone:</strong> +959 123 456 789",
+                    modal_success_title: "Success!",
+                    modal_success_text: "Your message has been received.",
+                    modal_close_btn: "Close",
+                    footer_copyright: "&copy; 2025 The Golden Bean. All Rights Reserved.",
+                    footer_credit: "Designed for a portfolio by a passionate developer."
+                },
+                my: {
+                    shop_name: "The Golden Bean", // Keeping English name for branding
+                    nav_home: "ပင်မစာမျက်နှာ", nav_menu: "မီနူး", nav_about: "ကျွန်ုပ်တို့အကြောင်း", nav_contact: "ဆက်သွယ်ရန်",
+                    nav_home_mob: "ပင်မစာမျက်နှာ", nav_menu_mob: "မီနူး", nav_about_mob: "ကျွန်ုပ်တို့အကြောင်း", nav_contact_mob: "ဆက်သွယ်ရန်",
+                    hero_title: "ကဗျာတစ်ပုဒ်လို ကော်ဖီ",
+                    hero_subtitle: "အရသာတိုင်းမှာ ပုံပြင်တစ်ပုဒ် ရှိတယ်။",
+                    hero_button: "ကျွန်ုပ်တို့၏ ဖန်တီးမှုများကို ကြည့်ရန်",
+                    featured_title: "လူကြိုက်အများဆုံး",
+                    featured_subtitle: "ကျွန်ုပ်တို့၏ အကောင်းဆုံး လက်ရာများကို မြည်းစမ်းကြည့်ပါ။",
+                    featured_item1: "The Sonnet Mocha", featured_item2: "Almond Croissant", featured_item3: "Poet's Pearl Milk Tea",
+                    menu_title: "ကျွန်ုပ်တို့၏ Menu",
+                    menu_subtitle: "အကောင်းမွန်ဆုံးသော ကော်ဖီ၊ လက်ဖက်ရည်နှင့် မုန့်မျိုးစုံ။",
+                    filter_all: "အားလုံး", filter_coffee: "ကော်ဖီ", filter_tea: "လက်ဖက်ရည်", filter_pastry: "မုန့်",
+                    about_title: "ကျွန်ုပ်တို့၏ ဇာတ်လမ်း",
+                    about_subtitle: "ကော်ဖီတစ်ခွက်ထက်ပိုသော တိတ်ဆိတ်ငြိမ်သက်ရာလေးတစ်ခု",
+                    about_section1_title: "အစပြုခြင်း",
+                    about_section1_text: "The Golden Bean ကို ကော်ဖီအပေါ်ရူးသွပ်သူများက တည်ထောင်ခဲ့ပါသည်။ ကျွန်ုပ်တို့သည် ကမ္ဘာတစ်ဝှမ်းမှ အကောင်းဆုံးကော်ဖီစေ့များကို ရွေးချယ်ပြီး သင့်အတွက် အကောင်းဆုံးအရသာကို ဖန်တီးပေးပါသည်။ မြို့ပြရဲ့ဆူညံမှုတွေကနေ ခဏတာလွတ်မြောက်ပြီး၊ သင်အကြိုက်ဆုံးကဗျာတစ်ပုဒ်လို ခံစားရမယ့် နေရာလေးတစ်ခုဆီသို့ လှမ်းခဲ့ပါ။",
+                    about_section2_title: "ကျွန်ုပ်တို့၏ ကော်ဖီ",
+                    about_section2_text: "ကော်ဖီစေ့တိုင်းကို ဂရုတစိုက်ရွေးချယ်ပြီး အပူချိန်အတိအကျနဲ့ လှော်ထားပါတယ်။ ဒါမှ ကော်ဖီစေ့ရဲ့ မူလရနံ့နဲ့ အရသာကို အပြည့်အဝရရှိမှာပါ။ ကျွန်ုပ်တို့ရဲ့ Barista တွေကလည်း ကော်ဖီတစ်ခွက်ချင်းစီကို စေတနာအပြည့်နဲ့ ဖျော်စပ်ပေးနေပါတယ်။",
+                    contact_title: "ကျွန်ုပ်တို့ထံ ဆက်သွယ်ရန်",
+                    contact_subtitle: "သင့်ရဲ့ အသံကို ကြားချင်ပါတယ်။",
+                    form_title: "Message ပို့ရန်",
+                    form_name: "အမည်", form_email: "Email", form_message: "Message", form_button: "Message ပို့ရန်",
+                    info_title: "ဆိုင်လိပ်စာ",
+                    info_address: "အမှတ် (၁၂၃)၊ ကဗျာလမ်း၊ ကျောက်တံတားမြို့နယ်၊ ရန်ကုန်။",
+                    info_email: "<strong>Email:</strong> contact@thegoldenbean.com",
+                    info_phone: "<strong>Phone:</strong> +959 123 456 789",
+                    modal_success_title: "အောင်မြင်ပါသည်!",
+                    modal_success_text: "သင်၏ message ကို လက်ခံရရှိပါသည်။",
+                    modal_close_btn: "ပိတ်မည်",
+                    footer_copyright: "&copy; 2025 The Golden Bean. All Rights Reserved.",
+                    footer_credit: "Passionate Developer တစ်ဦးမှ Portfolio အတွက် ဒီဇိုင်းဆွဲထားပါသည်။"
+                }
+            };
+
+            // --- MENU DATA with USD prices ---
+            const menuData = [
+                { id: 1, name_en: 'Ember Latte', name_my: 'Ember Latte', description_en: 'A warm latte with a hint of cinnamon.', description_my: 'သစ်ကြံပိုးခေါက်ရနံ့သင်းသင်းနဲ့ နွေးထွေးတဲ့ Latte။', priceUSD: 2.50, image: 'ember.png', category: 'coffee' },
+                { id: 2, name_en: 'Spring Blossom Americano', name_my: 'Spring Blossom Americano', description_en: 'A refreshing Americano with floral notes.', description_my: 'ပန်းရနံ့သင်းသင်းနဲ့ လန်းဆန်းစေမယ့် Americano။', priceUSD: 2.00, image: 'https://images.unsplash.com/photo-1497935586351-b67a49e012bf?q=80&w=2071&auto=format&fit=crop', category: 'coffee' },
+                { id: 3, name_en: 'The Sonnet Mocha', name_my: 'The Sonnet Mocha', description_en: 'A poetic mocha for the soul.', description_my: 'စိတ်ဝိညာဉ်အတွက် ကဗျာဆန်တဲ့ Mocha။', priceUSD: 3.00, image: 'https://images.unsplash.com/photo-1541167760496-1628856ab772?q=80&w=1937&auto=format&fit=crop', category: 'coffee' },
+                { id: 4, name_en: 'Classic Espresso', name_my: 'Classic Espresso', description_en: 'The pure, unadulterated taste of coffee.', description_my: 'ကော်ဖီရဲ့ မူလအရသာစစ်စစ်။', priceUSD: 1.80, image: 'espresso.png', category: 'coffee' },
+                { id: 5, name_en: 'Poet\'s Pearl Milk Tea', name_my: 'Poet\'s Pearl Milk Tea', description_en: 'Our signature bubble milk tea.', description_my: 'ကျွန်ုပ်တို့၏ Signature bubble milk tea။', priceUSD: 2.80, image: 'https://images.unsplash.com/photo-1571934811356-5cc061b6821f?q=80&w=1964&auto=format&fit=crop', category: 'tea' },
+                { id: 6, name_en: 'Rose Petal Infusion', name_my: 'Rose Petal Infusion', description_en: 'A fragrant tea made with delicate rose petals.', description_my: 'နူးညံ့သော နှင်းဆီပွင့်ဖတ်များဖြင့် ပြုလုပ်ထားသော မွှေးကြိုင်သည့် လက်ဖက်ရည်။', priceUSD: 2.20, image: 'rosepetal.png', category: 'tea' },
+                { id: 7, name_en: 'Matcha Green Tea', name_my: 'Matcha Green Tea', description_en: 'High-quality Matcha from Japan.', description_my: 'ဂျပန်နိုင်ငံမှ အရည်အသွေးမြင့် Matcha။', priceUSD: 3.20, image: 'matcha.png', category: 'tea' },
+                { id: 8, name_en: 'Lemon Sonnet Tart', name_my: 'Lemon Sonnet Tart', description_en: 'A poetic and sweet, refreshing lemon tart.', description_my: 'ကဗျာဆန်ပြီး ချိုမြိန်သော လန်းဆန်းစေသည့် သံပုရာ Tart။', priceUSD: 2.00, image: 'lemon.png', category: 'pastry' },
+                { id: 9, name_en: 'Almond Croissant', name_my: 'Almond Croissant', description_en: 'A buttery croissant with an almond filling.', description_my: 'ဗာဒံစေ့အဆာသွတ်ဖြင့် ပြုလုပ်ထားသော ထောပတ်နံ့သင်းသည့် Croissant။', priceUSD: 2.50, image: 'almond.png', category: 'pastry' },
+                { id: 10, name_en: 'Chocolate Verse Cake', name_my: 'Chocolate Verse Cake', description_en: 'A soft cake with rich chocolate.', description_my: 'ချောကလက်အပြည့်နဲ့ နူးညံ့တဲ့ကိတ်။', priceUSD: 3.50, image: 'https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?q=80&w=1974&auto=format&fit=crop', category: 'pastry' },
+            ];
+
+            // --- DOM ELEMENTS ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const filterContainer = document.getElementById('filter-container');
+            const menuGrid = document.getElementById('menu-grid');
+            const contactForm = document.getElementById('contact-form');
+            const successModal = document.getElementById('success-modal');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const langSwitchers = document.querySelectorAll('.lang-switch-btn');
+            const portfolioBackButton = document.getElementById('portfolio-back-button');
+
+            // --- FUNCTIONS ---
+            
+            // Function to set the language
+            function setLanguage(lang) {
+                if (!translations[lang]) return;
+                currentLang = lang;
+                localStorage.setItem(langKey, lang); // Save choice to localStorage
+
+                document.querySelectorAll('[data-lang-key]').forEach(el => {
+                    const key = el.dataset.langKey;
+                    if (translations[lang][key]) {
+                        el.innerHTML = translations[lang][key];
+                    }
+                });
+
+                // Update active state on language switchers
+                langSwitchers.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.lang === lang);
+                });
+
+                // Re-render menu to update names, descriptions, and prices
+                const activeFilter = document.querySelector('.filter-btn.active')?.dataset.category || 'all';
+                renderMenu(activeFilter);
+            }
+
+            // Function for page navigation
+            function showPage(pageId, filterCategory = 'all') {
+                const currentActivePage = document.querySelector('.page.active');
+                if (currentActivePage) {
+                    scrollPositions[currentActivePage.id] = window.scrollY;
+                }
+                
+                pages.forEach(page => page.classList.remove('active'));
+
+                const newActivePage = document.getElementById(pageId);
+                if (newActivePage) {
+                    newActivePage.classList.add('active');
+                }
+                
+                // Back button is now always visible via CSS, no need to toggle class
+                
+                if (pageId === 'menu') {
+                    renderMenu(filterCategory);
+                    updateActiveFilterButton(filterCategory);
+                }
+                
+                window.scrollTo(0, scrollPositions[pageId] || 0);
+                
+                mobileMenu.classList.add('hidden');
+            }
+
+            // Function to update active filter button style
+            function updateActiveFilterButton(category) {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    if (btn.dataset.category === category) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+
+            // Function to render menu items
+            function renderMenu(category = 'all') {
+                if (!menuGrid) return;
+                menuGrid.innerHTML = '';
+                const filteredData = category === 'all' 
+                    ? menuData 
+                    : menuData.filter(item => item.category === category);
+
+                filteredData.forEach(item => {
+                    const priceInMMK = Math.round(item.priceUSD * USD_TO_MMK_RATE / 100) * 100;
+                    const formattedPrice = currentLang === 'my' 
+                        ? `${priceInMMK.toLocaleString('my-MM')} ကျပ်`
+                        : `MMK ${priceInMMK.toLocaleString()}`;
+                    
+                    const name = item[`name_${currentLang}`] || item.name_en;
+                    const description = item[`description_${currentLang}`] || item.description_en;
+
+                    const card = `
+                        <div class="bg-cream rounded-xl shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 group">
+                            <img src="${item.image}" alt="${name}" class="w-full h-56 object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null;this.src='https://placehold.co/600x400/FFF1E6/3B2F2F?text=Image+Not+Found';">
+                            <div class="p-6">
+                                <h3 class="text-xl font-display mb-2">${name}</h3>
+                                <p class="text-sm mb-4 text-gray-600 h-16">${description}</p>
+                                <div class="font-bold text-lg text-coffee-brown mt-4">${formattedPrice}</div>
+                            </div>
+                        </div>
+                    `;
+                    menuGrid.innerHTML += card;
+                });
+            }
+
+            // --- EVENT LISTENERS ---
+
+            // Language switcher
+            langSwitchers.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.dataset.lang);
+                });
+            });
+
+            // Page navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const pageId = link.dataset.page;
+                    const filter = link.dataset.filter || 'all';
+                    showPage(pageId, filter);
+                });
+            });
+            
+            // Mobile menu toggle
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Menu filter
+            if (filterContainer) {
+                 filterContainer.addEventListener('click', (e) => {
+                     if (e.target.classList.contains('filter-btn')) {
+                         const category = e.target.dataset.category;
+                         renderMenu(category);
+                         updateActiveFilterButton(category);
+                     }
+                 });
+            }
+            
+            // Contact form
+            if (contactForm) {
+                contactForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    successModal.style.display = 'flex';
+                    contactForm.reset();
+                });
+            }
+            // Modal close buttons
+            if (closeModalBtn) {
+                closeModalBtn.addEventListener('click', () => {
+                     successModal.style.display = 'none';
+                });
+            }
+            if (successModal) {
+                 successModal.addEventListener('click', (e) => {
+                     if (e.target === successModal) {
+                         successModal.style.display = 'none';
+                     }
+                 });
+            }
+
+            // --- INITIAL LOAD ---
+            setLanguage(currentLang); // Set initial language from localStorage
+            showPage('home'); // Show home page by default
+        });
+    </script>
+
+</body>
+</html>

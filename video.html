@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#0a0a0a">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>CineLux - A Noven Concept</title>
+    
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Padauk:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js" defer></script>
+    
+    <link rel="stylesheet" href="stream/css/style.css">
+
+</head>
+<body>
+
+    <div id="loading-screen">
+        <h1 class="loading-logo brand-font">CineLux</h1>
+    </div>
+
+    <!-- The 3D navigation view -->
+    <div id="navigator-view" class="view active">
+        <canvas id="bg-canvas"></canvas>
+        
+        <div class="navigator-ui">
+            <div id="info-panel" class="info-panel-container">
+                <span class="holographic-corner top-left"></span>
+                <span class="holographic-corner top-right"></span>
+                <span class="holographic-corner bottom-left"></span>
+                <span class="holographic-corner bottom-right"></span>
+                <div id="info-panel-content">
+                    <button id="view-category-button" class="font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center gap-2 mx-auto interactive-button">
+                        <i data-feather="eye"></i>
+                        <span class="lang-en">View Category</span>
+                        <span class="lang-my hidden">ကဏ္ဍကြည့်ရန်</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="prev-planet" class="nav-arrow"><i data-feather="arrow-left"></i></div>
+        <div id="next-planet" class="nav-arrow"><i data-feather="arrow-right"></i></div>
+    </div>
+    
+    <!-- Grid View for displaying movies -->
+    <div id="grid-view" class="view">
+        <div class="max-w-screen-2xl mx-auto px-4 pt-24 pb-8">
+            <h2 id="grid-title" class="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-white"></h2>
+            <div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                <!-- Movie items will be injected here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- View for Watch Later & Favorites lists -->
+    <div id="list-view" class="view">
+        <div class="max-w-screen-2xl mx-auto px-4 pt-24 pb-8 h-full flex flex-col">
+            <h2 id="list-title" class="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-white"></h2>
+            <div id="list-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                <!-- List items will be injected here -->
+            </div>
+            <div id="list-empty-message" class="hidden flex-grow items-center justify-center text-center text-gray-400">
+                <div>
+                    <h3 class="text-2xl font-semibold text-white lang-en">List is Empty</h3>
+                    <h3 class="text-2xl font-semibold text-white lang-my hidden">စာရင်းတွင်မရှိပါ</h3>
+                    <p class="mt-2 lang-en">Movies you add will appear here.</p>
+                    <p class="mt-2 lang-my hidden">သင်ထည့်သော ရုပ်ရှင်များ ဤနေရာတွင် ပေါ်လာပါမည်။</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+     <!-- Search Results View -->
+    <div id="search-results-view" class="view">
+        <div class="max-w-screen-2xl mx-auto px-4 pt-24 pb-8 h-full flex flex-col">
+            <h2 id="search-results-title" class="text-3xl md:text-4xl font-bold mb-6 md:mb-8 text-white"></h2>
+            <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 md:gap-6">
+                <!-- Search results will be injected here -->
+            </div>
+            <div id="search-empty-message" class="hidden flex-grow items-center justify-center text-center text-gray-400">
+                <div>
+                    <h3 class="text-2xl font-semibold text-white lang-en">No Results Found</h3>
+                    <h3 class="text-2xl font-semibold text-white lang-my hidden">ရှာမတွေ့ပါ</h3>
+                    <p class="mt-2 lang-en">Please try a different keyword.</p>
+                    <p class="mt-2 lang-my hidden">အခြားသော့ချက်စာလုံးဖြင့် ထပ်မံကြိုးစားပါ။</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Movie Details Pop-up/Modal -->
+    <div id="details-popup" class="fixed inset-0 z-30 flex items-center justify-center p-4 opacity-0 pointer-events-none">
+        <div id="popup-overlay" class="absolute inset-0 bg-black bg-opacity-80 backdrop-blur-sm cursor-pointer"></div>
+        <div id="popup-content" class="relative w-full max-w-4xl bg-gray-900 rounded-lg overflow-hidden transform scale-95">
+            <!-- Content will be injected here by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Player View -->
+    <div id="player-view" class="view z-40">
+        <div class="max-w-screen-2xl mx-auto px-4 pt-24 pb-8">
+            <div id="player-container" class="w-full max-w-5xl aspect-video mx-auto">
+                <!-- YouTube iframe will be injected here -->
+            </div>
+            <div id="related-videos-section" class="w-full max-w-5xl mx-auto mt-8">
+                <h3 class="text-xl font-bold text-white mb-4 lang-en">More Videos</h3>
+                <h3 class="text-xl font-bold text-white mb-4 lang-my hidden">နောက်ထပ် ဗီဒီယိုများ</h3>
+                <div id="related-videos-container" class="flex gap-3 overflow-x-auto pb-3">
+                    <!-- Related videos will be injected here -->
+                </div>
+            </div>
+            
+            <div class="w-full max-w-5xl mx-auto mt-8">
+                <button id="toggle-comments-btn" class="text-gold font-semibold flex items-center gap-2">
+                    <span class="lang-en">Show Comments</span>
+                    <span class="lang-my hidden">မှတ်ချက်များပြရန်</span>
+                    <i data-feather="chevron-down"></i>
+                </button>
+                <div id="comments-section" class="mt-4">
+                    <div class="comment-item">
+                        <img src="https://i.pravatar.cc/40?u=a" alt="avatar" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/FFFFFF?text=U';">
+                        <div class="comment-content">
+                            <p class="font-semibold">User One</p>
+                            <p class="text-gray-300">This movie was absolutely amazing! A must-watch.</p>
+                        </div>
+                    </div>
+                    <div class="comment-item">
+                        <img src="https://i.pravatar.cc/40?u=b" alt="avatar" onerror="this.onerror=null;this.src='https://placehold.co/40x40/374151/FFFFFF?text=U';">
+                        <div class="comment-content">
+                            <p class="font-semibold">သုံးစွဲသူ နှစ်</p>
+                            <p class="text-gray-300">ဇာတ်လမ်းက အရမ်းကောင်းတယ်။ နောက်ဆက်တွဲ မြန်မြန်ထွက်ရင်ကောင်းမယ်။</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50 transition-opacity duration-300">
+        <div class="max-w-screen-2xl mx-auto flex items-center gap-4 p-4">
+            <div class="flex items-center gap-2 flex-shrink-0">
+                <a href="#" id="header-back-button" class="text-gray-300 hover:text-white transition-colors p-2 rounded-full interactive-button">
+                    <i data-feather="arrow-left"></i>
+                </a>
+                <h1 id="header-title" class="brand-font tracking-tighter cursor-pointer" style="color: var(--gold);">CineLux</h1>
+            </div>
+            
+            <div class="flex items-center gap-2 flex-grow justify-end">
+                <nav class="hidden md:flex items-center gap-2">
+                    <a href="#" id="pc-watch-later-btn" class="pc-nav-btn tooltip-container" data-tooltip="Watch Later">
+                        <i data-feather="clock"></i>
+                        <span class="hidden lg:inline ml-2">
+                            <span class="lang-en">Watch Later</span>
+                            <span class="lang-my hidden">နောက်မှကြည့်ရန်</span>
+                        </span>
+                    </a>
+                    <a href="#" id="pc-favorites-btn" class="pc-nav-btn tooltip-container" data-tooltip="Favorites">
+                        <i data-feather="heart"></i>
+                        <span class="hidden lg:inline ml-2">
+                            <span class="lang-en">Favorites</span>
+                            <span class="lang-my hidden">အနှစ်သက်ဆုံး</span>
+                        </span>
+                    </a>
+                    <div id="pc-search-container" class="flex items-center">
+                        <div class="relative flex items-center">
+                            <input type="text" id="pc-search-input" placeholder="Search movies..." class="bg-transparent border-b-2 text-white focus:outline-none transition-all duration-300">
+                            <button id="pc-search-clear" class="search-clear-btn">
+                                <i data-feather="x"></i>
+                            </button>
+                        </div>
+                        <button id="pc-search-button" class="pc-nav-btn tooltip-container" data-tooltip="Search">
+                            <i data-feather="search"></i>
+                        </button>
+                    </div>
+                    <button class="pc-nav-btn lang-switcher tooltip-container" data-tooltip="Language"><i data-feather="globe"></i></button>
+                </nav>
+
+                <div class="flex items-center gap-2 md:hidden">
+                    <button id="mobile-search-button" class="p-2 rounded-full text-gray-300 hover:text-white transition-colors mobile-header-icon">
+                        <i data-feather="search"></i>
+                    </button>
+                    <button id="mobile-menu-button" class="p-2 rounded-full text-gray-300 hover:text-white transition-colors mobile-header-icon">
+                        <i data-feather="menu"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Search Overlay -->
+    <div id="mobile-search-overlay" class="fixed top-0 left-0 right-0 z-50 bg-gray-900 bg-opacity-95 backdrop-blur-sm p-4 transform -translate-y-full transition-transform duration-300 ease-in-out">
+        <div class="max-w-screen-2xl mx-auto flex items-center gap-4">
+            <button id="mobile-search-back" class="text-gray-400 hover:text-white">
+                <i data-feather="arrow-left"></i>
+            </button>
+            <div class="relative flex-grow">
+                <input type="text" id="mobile-search-input" placeholder="Search movies..." class="w-full bg-transparent text-white text-lg focus:outline-none border-b-2 py-2">
+                <button id="mobile-search-clear" class="search-clear-btn">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div id="mobile-nav" class="fixed top-0 right-0 h-full w-64 bg-gray-900 bg-opacity-95 backdrop-blur-sm z-50 transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-4">
+            <button id="mobile-nav-close" class="absolute top-4 right-4 text-gray-400 hover:text-white">
+                <i data-feather="x"></i>
+            </button>
+            <h2 class="text-xl font-bold text-white mt-12 mb-6 lang-en">Menu</h2>
+            <h2 class="text-xl font-bold text-white mt-12 mb-6 lang-my hidden">မီနူး</h2>
+            <ul>
+                <li><a href="#" id="watch-later-btn" class="flex items-center gap-3 text-gray-300 hover:text-white py-3"><i data-feather="clock"></i> <span class="lang-en">Watch Later</span><span class="lang-my hidden">နောက်မှကြည့်ရန်</span></a></li>
+                <li><a href="#" id="favorites-btn" class="flex items-center gap-3 text-gray-300 hover:text-white py-3"><i data-feather="heart"></i> <span class="lang-en">Favorites</span><span class="lang-my hidden">အနှစ်သက်ဆုံး</span></a></li>
+                <!-- video.html -->
+
+<li class="mt-4 border-t border-gray-700 pt-4"><button class="lang-switcher flex items-center gap-3 text-gray-300 hover:text-white py-3 w-full text-left"><i data-feather="globe"></i> <span class="lang-en">Change Language</span><span class="lang-my hidden">ဘာသာစကားပြောင်းရန်</span></button></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Floating AI Chat Button -->
+    <div id="ai-chat-button" class="fixed bottom-6 right-6 z-50">
+        <button>
+            <span class="icon-wrapper">
+                <i data-feather="message-square"></i>
+                <span class="ai-text">AI</span>
+            </span>
+        </button>
+    </div>
+
+    <!-- AI Chat Window -->
+    <div id="ai-chat-window" class="fixed bottom-24 right-6 z-50">
+        <div class="chat-header">
+            <h3 class="font-bold">
+                <span class="lang-en">Movie AI Assistant</span>
+                <span class="lang-my hidden">ရုပ်ရှင် AI လက်ထောက်</span>
+            </h3>
+            <button id="ai-chat-close-btn"><i data-feather="x"></i></button>
+        </div>
+        <div id="chat-messages" class="chat-messages-container">
+            <!-- Chat messages will be appended here -->
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chat-input" placeholder="Ask about movies...">
+            <button id="chat-send-btn"><i data-feather="send"></i></button>
+        </div>
+    </div>
+
+    <script type="module" src="stream/js/script.js" defer></script>
+</body>
+</html>
